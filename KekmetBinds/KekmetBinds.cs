@@ -74,7 +74,7 @@ namespace KekmetBinds
         }
 
         /// <summary>
-        /// Update is called once per frame
+        /// Update is called once per frame.
         /// </summary>
         public override void Update()
         {
@@ -117,7 +117,7 @@ namespace KekmetBinds
         }
 
         /// <summary>
-        /// Returns true if both Keybinds are held at the same time or either Keybind is got released this frames.
+        /// Returns true if both Keybinds are held at the same time or either Keybind got released this frames.
         /// Use case: Holding both buttons should do nothing. --> Reset the capsule colliders.
         /// </summary>
         /// <param name="kb1"></param>
