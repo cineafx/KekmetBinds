@@ -18,14 +18,17 @@ namespace KekmetBinds
         // This will create subfolder in Assets folder for your mod.
         public override bool UseAssetsFolder => false;
 
+        
+        //Used to tell if the player has entered / exited a vehicle.
         private FsmString _playerCurrentVehicle;
         private string _playerLastVehicle;
 
-
-        //All LeverHandlers that use the default thing in UpdateFsm()
+        
+        //All LeverHandlers checked every frame.
         private List<LeverHandler> _leverHandlers;
 
-
+        
+        // Keybinds
         private readonly Keybind _frontHydArmKeybindFore =
             new Keybind("frontHydArmFore", "Front loader arm forward (lower)", KeyCode.Keypad2);
 

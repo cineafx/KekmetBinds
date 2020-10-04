@@ -28,7 +28,7 @@ namespace KekmetBinds
 
             _capsuleCollider = _fsm.gameObject.GetComponent<CapsuleCollider>();
             _defaultCapsuleRadius = _capsuleCollider.radius;
-            _defaultLocalPosColl = _capsuleCollider.transform.localPosition;
+            _defaultLocalPosCollider = _capsuleCollider.transform.localPosition;
 
             _lever = _fsm.gameObject.transform.Find(leverName);
             _defaultLocalPosLever = _lever.localPosition;
@@ -52,7 +52,7 @@ namespace KekmetBinds
         private readonly Keybind _fore;
         private readonly Keybind _aft;
         private readonly float _defaultCapsuleRadius;
-        private readonly Vector3 _defaultLocalPosColl;
+        private readonly Vector3 _defaultLocalPosCollider;
         private readonly Vector3 _defaultLocalPosLever;
         private readonly float _capsuleNewRadius;
         private readonly Vector3 _offsetCollider;
@@ -65,7 +65,7 @@ namespace KekmetBinds
         private void SetLeverHandler(string fsmEvent)
         {
             _capsuleCollider.radius = _capsuleNewRadius;
-            _capsuleCollider.transform.localPosition = _defaultLocalPosColl + _offsetCollider;
+            _capsuleCollider.transform.localPosition = _defaultLocalPosCollider + _offsetCollider;
             _lever.localPosition = _defaultLocalPosLever + _offsetLever;
             _fsm.SendEvent(fsmEvent);
         }
@@ -76,7 +76,7 @@ namespace KekmetBinds
         private void ResetLeverHandler()
         {
             _capsuleCollider.radius = _defaultCapsuleRadius;
-            _capsuleCollider.transform.localPosition = _defaultLocalPosColl;
+            _capsuleCollider.transform.localPosition = _defaultLocalPosCollider;
             _lever.localPosition = _defaultLocalPosLever;
             _fsm.SendEvent("FINISHED");
         }
