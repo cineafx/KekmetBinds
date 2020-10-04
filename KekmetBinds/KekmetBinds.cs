@@ -132,7 +132,7 @@ namespace KekmetBinds
         {
             _frontHydArmCapsuleCollider.radius = CapsuleNewRadius;
             _frontHydArmCapsuleCollider.transform.localPosition = _frontHydArmLocalPosColl + LeverOffset;
-            //_frontHydArmLever.localPosition = _frontHydArmLocalPosLever + LeverOffsetDown;
+            _frontHydArmLever.localPosition = _frontHydArmLocalPosLever + LeverOffsetDown;
             _frontHydArmFsm.SendEvent(fsmEvent);
         }
 
@@ -140,7 +140,7 @@ namespace KekmetBinds
         {
             _frontHydLoaderCapsuleCollider.radius = CapsuleNewRadius;
             _frontHydLoaderCapsuleCollider.transform.localPosition = _frontHydLoaderLocalPosColl + LeverOffset;
-            //_frontHydLoaderLever.localPosition = _frontHydLoaderLocalPosLever + LeverOffsetDown;
+            _frontHydLoaderLever.localPosition = _frontHydLoaderLocalPosLever + LeverOffsetDown;
             _frontHydLoaderFsm.SendEvent(fsmEvent);
         }
 
@@ -149,9 +149,8 @@ namespace KekmetBinds
             _frontHydArmCapsuleCollider.radius = _frontHydArmDefaultCapsuleRadius;
             _frontHydArmCapsuleCollider.transform.localPosition = _frontHydArmLocalPosColl;
             _frontHydArmLever.localPosition = _frontHydArmLocalPosLever;
-            if (stillInVehicle)
-                _frontHydArmFsm.SendEvent("FINISHED");
-            else
+            _frontHydArmFsm.SendEvent("FINISHED");
+            if (!stillInVehicle)
                 _frontHydArmCapsuleCollider = null;
         }
 
@@ -160,9 +159,8 @@ namespace KekmetBinds
             _frontHydLoaderCapsuleCollider.radius = _frontHydLoaderDefaultCapsuleRadius;
             _frontHydLoaderCapsuleCollider.transform.localPosition = _frontHydLoaderLocalPosColl;
             _frontHydLoaderLever.localPosition = _frontHydLoaderLocalPosLever;
-            if (stillInVehicle)
-                _frontHydLoaderFsm.SendEvent("FINISHED");
-            else
+            _frontHydLoaderFsm.SendEvent("FINISHED");
+            if (!stillInVehicle)
                 _frontHydLoaderCapsuleCollider = null;
         }
 
