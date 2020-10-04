@@ -38,6 +38,12 @@ namespace KekmetBinds
         private readonly Keybind _frontHydLoaderKeybindAft =
             new Keybind("frontHydLoaderAft", "Front loader fork backward (raise)", KeyCode.Keypad4);
 
+        private readonly Keybind _throttleKeybindFore =
+            new Keybind("throttleFore", "Hand throttle forward (lower)", KeyCode.Keypad3);
+
+        private readonly Keybind _throttleKeybindAft =
+            new Keybind("throttleAft", "Hand throttle fork backward (raise)", KeyCode.Keypad6);
+
         /// <summary>
         /// All settings should be created here. 
         /// DO NOT put anything else here that settings.
@@ -48,6 +54,8 @@ namespace KekmetBinds
             Keybind.Add(this, _frontHydArmKeybindAft);
             Keybind.Add(this, _frontHydLoaderKeybindFore);
             Keybind.Add(this, _frontHydLoaderKeybindAft);
+            Keybind.Add(this, _throttleKeybindFore);
+            Keybind.Add(this, _throttleKeybindAft);
         }
 
         /// <summary>
@@ -63,16 +71,32 @@ namespace KekmetBinds
                 new LeverHandler(
                     GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydArm")
                         .gameObject.GetComponent<PlayMakerFSM>(),
+                    _frontHydArmKeybindFore,
+                    _frontHydArmKeybindAft,
                     0.7f,
-                    new Vector3(0.35f, 1.25f, 0.5f)
+                    new Vector3(0.35f, 1.25f, 0.5f),
+                    new Vector3(1, 1, -1)
                 ),
                 //Frontloader Loader (the fork thing)
                 new LeverHandler(
                     GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydLoader")
                         .gameObject.GetComponent<PlayMakerFSM>(),
+                    _frontHydLoaderKeybindFore,
+                    _frontHydLoaderKeybindAft,
                     0.7f,
-                    new Vector3(0.35f, 1.25f, 0.5f)
-                )
+                    new Vector3(0.35f, 1.25f, 0.5f),
+                    new Vector3(1, 1, -1)
+                ),
+                //Handthrottle
+                new LeverHandler(
+                    GameObject.Find("KEKMET(350-400psi)").transform.Find("LOD/Dashboard/Throttle")
+                        .gameObject.GetComponent<PlayMakerFSM>(),
+                    _throttleKeybindFore,
+                    _throttleKeybindAft,
+                    0.7f,
+                    new Vector3(0.25f, 0.75f, 0.25f),
+                    new Vector3(-1, -1, -1),
+                    "Pivot")
             };
         }
 
@@ -100,7 +124,7 @@ namespace KekmetBinds
             }
 
             _leverHandlers.ForEach(leverHandler =>
-                leverHandler.HandleKeyBinds(_frontHydArmKeybindFore, _frontHydArmKeybindAft));
+                leverHandler.HandleKeyBinds());
         }
     }
 }

@@ -6,52 +6,73 @@ namespace KekmetBinds
 {
     public class LeverHandler
     {
-        public LeverHandler(PlayMakerFSM fsm, float capsuleNewRadius, Vector3 leverOffset)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fsm">Fsm of the controlling component.</param>
+        /// <param name="fore">Fore movement keybind.</param>
+        /// <param name="aft">Aft movement keybind.</param>
+        /// <param name="capsuleNewRadius">Radius for the capsule collider.</param>
+        /// <param name="offsetCollider">By how much and in which direction should the collider be moved.</param>
+        /// <param name="offsetLeverDirection">In which direction should be visible lever be moved back. Vector3 with either -1 or 1 inside the fields.</param>
+        /// <param name="leverName">Name of the visible lever to be moved back.</param>
+        public LeverHandler(PlayMakerFSM fsm, Keybind fore, Keybind aft, float capsuleNewRadius,
+            Vector3 offsetCollider, Vector3 offsetLeverDirection, string leverName = "Lever")
         {
             _fsm = fsm;
+            _fore = fore;
+            _aft = aft;
             _capsuleNewRadius = capsuleNewRadius;
-            _leverOffset = leverOffset;
-            
+            _offsetCollider = offsetCollider;
+            _offsetLever = Vector3.Scale(offsetCollider, offsetLeverDirection);
+
             _capsuleCollider = _fsm.gameObject.GetComponent<CapsuleCollider>();
             _defaultCapsuleRadius = _capsuleCollider.radius;
             _defaultLocalPosColl = _capsuleCollider.transform.localPosition;
 
-            _lever = _fsm.gameObject.transform.Find("Lever");
+            _lever = _fsm.gameObject.transform.Find(leverName);
             _defaultLocalPosLever = _lever.localPosition;
         }
 
         private bool _isInVehicle;
+
         public bool IsInVehicle
         {
-            get => _isInVehicle;
+            private get => _isInVehicle;
             set
             {
                 _isInVehicle = value;
-                if (!_isInVehicle)
-                {
-                    ResetLeverHandler();
-                }
+                if (!_isInVehicle) ResetLeverHandler();
             }
         }
 
-        private PlayMakerFSM _fsm;
+        private readonly PlayMakerFSM _fsm;
         private readonly CapsuleCollider _capsuleCollider;
         private readonly Transform _lever;
+        private readonly Keybind _fore;
+        private readonly Keybind _aft;
         private readonly float _defaultCapsuleRadius;
         private readonly Vector3 _defaultLocalPosColl;
         private readonly Vector3 _defaultLocalPosLever;
         private readonly float _capsuleNewRadius;
-        private readonly Vector3 _leverOffset;
-        private Vector3 LeverOffsetDown => new Vector3(_leverOffset.x, _leverOffset.y, -_leverOffset.z);
+        private readonly Vector3 _offsetCollider;
+        private readonly Vector3 _offsetLever;
 
+        /// <summary>
+        /// Move the colliders based on their offset.
+        /// </summary>
+        /// <param name="fsmEvent"></param>
         private void SetLeverHandler(string fsmEvent)
         {
             _capsuleCollider.radius = _capsuleNewRadius;
-            _capsuleCollider.transform.localPosition = _defaultLocalPosColl + _leverOffset;
-            _lever.localPosition = _defaultLocalPosLever + LeverOffsetDown;
+            _capsuleCollider.transform.localPosition = _defaultLocalPosColl + _offsetCollider;
+            _lever.localPosition = _defaultLocalPosLever + _offsetLever;
             _fsm.SendEvent(fsmEvent);
         }
 
+        /// <summary>
+        /// Move the colliders back to their default location.
+        /// </summary>
         private void ResetLeverHandler()
         {
             _capsuleCollider.radius = _defaultCapsuleRadius;
@@ -60,19 +81,22 @@ namespace KekmetBinds
             _fsm.SendEvent("FINISHED");
         }
 
-        public void HandleKeyBinds(Keybind fore, Keybind aft)
+        /// <summary>
+        /// Should be run every frame (inside of Update()).
+        /// Requires the public variable IsInVehicle to be set correctly.
+        /// </summary>
+        public void HandleKeyBinds()
         {
             if (!IsInVehicle) return;
-            
+
             // Holding both buttons should do nothing
-            if (KeybindBothHoldOrEitherUp(fore, aft))
+            if (KeybindBothHoldOrEitherUp(_fore, _aft))
                 ResetLeverHandler();
-            else if (fore.GetKeybind())
+            else if (_fore.GetKeybind())
                 SetLeverHandler("DECREASE");
-            else if (aft.GetKeybind())
+            else if (_aft.GetKeybind())
                 SetLeverHandler("INCREASE");
         }
-        
 
         /// <summary>
         /// Returns true if both Keybinds are held at the same time or either Keybind got released this frames.
