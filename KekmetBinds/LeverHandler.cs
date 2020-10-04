@@ -1,35 +1,68 @@
-﻿using UnityEngine;
+﻿using System.Net.Configuration;
+using UnityEngine;
 
 namespace KekmetBinds
 {
     public class LeverHandler
     {
-        public LeverHandler(float capsuleNewRadius, Vector3 leverOffset)
+        public LeverHandler(PlayMakerFSM fsm, float capsuleNewRadius, Vector3 leverOffset)
         {
-            CapsuleNewRadius = capsuleNewRadius;
-            LeverOffset = leverOffset;
+            _fsm = fsm;
+            _capsuleNewRadius = capsuleNewRadius;
+            _leverOffset = leverOffset;
+            
+            _capsuleCollider = _fsm.gameObject.GetComponent<CapsuleCollider>();
+            _defaultCapsuleRadius = _capsuleCollider.radius;
+            _localPosColl = _capsuleCollider.transform.localPosition;
+
+            _lever = _fsm.gameObject.transform.Find("Lever");
+            _localPosLever = _lever.localPosition;
         }
 
-        public PlayMakerFSM Fsm;
-        public CapsuleCollider CapsuleCollider;
-        public Transform Lever;
-        public float DefaultCapsuleRadius;
-        public Vector3 LocalPosColl;
-        public Vector3 LocalPosLever;
-        public readonly float CapsuleNewRadius;
-        public readonly Vector3 LeverOffset;
-        public Vector3 LeverOffsetDown => new Vector3(LeverOffset.x, LeverOffset.y, -LeverOffset.z);
-
-        public void Update()
+        private bool _isInVehicle;
+        public bool IsInVehicle
         {
-            if (Fsm == null) return;
+            get => _isInVehicle;
+            set
+            {
+                _isInVehicle = value;
+                if (!_isInVehicle)
+                {
+                    _fsm.SendEvent("FINISHED");
+                }
+            }
+        }
 
-            CapsuleCollider = Fsm.gameObject.GetComponent<CapsuleCollider>();
-            DefaultCapsuleRadius = CapsuleCollider.radius;
-            LocalPosColl = CapsuleCollider.transform.localPosition;
+        private PlayMakerFSM _fsm;
+        private readonly CapsuleCollider _capsuleCollider;
+        private readonly Transform _lever;
+        private readonly float _defaultCapsuleRadius;
+        private readonly Vector3 _localPosColl;
+        private readonly Vector3 _localPosLever;
+        private readonly float _capsuleNewRadius;
+        private readonly Vector3 _leverOffset;
+        private Vector3 LeverOffsetDown => new Vector3(_leverOffset.x, _leverOffset.y, -_leverOffset.z);
 
-            Lever = Fsm.gameObject.transform.Find("Lever");
-            LocalPosLever = Lever.localPosition;
+        public void SetLeverHandler(string fsmEvent)
+        {
+            _capsuleCollider.radius = _capsuleNewRadius;
+            _capsuleCollider.transform.localPosition = _localPosColl + _leverOffset;
+            _lever.localPosition = _localPosLever + LeverOffsetDown;
+            _fsm.SendEvent(fsmEvent);
+        }
+
+        public void ResetLeverHandler(bool stillInVehicle)
+        {
+            if (_capsuleCollider)
+            {
+                _capsuleCollider.radius = _defaultCapsuleRadius;
+                _capsuleCollider.transform.localPosition = _localPosColl;
+                _lever.localPosition = _localPosLever;
+            }
+
+            _fsm.SendEvent("FINISHED");
+            if (!stillInVehicle)
+                _fsm = null;
         }
     }
 }

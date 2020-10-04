@@ -22,10 +22,10 @@ namespace KekmetBinds
         private string _playerLastVehicle;
 
         //Frontloader Arm
-        private readonly LeverHandler _frontHydArm = new LeverHandler(0.7f, new Vector3(0.35f, 1.25f, 0.5f));
+        private LeverHandler _frontHydArm;
 
         //Frontloader Loader (the fork thing)
-        private readonly LeverHandler _frontHydLoader = new LeverHandler(0.7f, new Vector3(0.35f, 1.25f, 0.5f));
+        private LeverHandler _frontHydLoader;
 
         //All LeverHandlers that use the default thing in UpdateFsm()
         private List<LeverHandler> _leverHandlers;
@@ -49,6 +49,20 @@ namespace KekmetBinds
         public override void OnLoad()
         {
             _playerCurrentVehicle = PlayMakerGlobals.Instance.Variables.FindFsmString("PlayerCurrentVehicle");
+
+            _frontHydArm = new LeverHandler(
+                GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydArm").gameObject
+                    .GetComponent<PlayMakerFSM>(),
+                0.7f,
+                new Vector3(0.35f, 1.25f, 0.5f)
+            );
+            _frontHydLoader = new LeverHandler(
+                GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydLoader").gameObject
+                    .GetComponent<PlayMakerFSM>(),
+                0.7f,
+                new Vector3(0.35f, 1.25f, 0.5f)
+            );
+
             _leverHandlers = new List<LeverHandler> {_frontHydArm, _frontHydLoader};
         }
 
@@ -73,6 +87,8 @@ namespace KekmetBinds
             if (_playerCurrentVehicle.Value.Length == 0)
             {
                 if (_playerLastVehicle == _playerCurrentVehicle.Value) return;
+                
+                _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = false);
 
                 _playerLastVehicle = _playerCurrentVehicle.Value;
                 //ModConsole.Print("New vehicle: None");
@@ -81,26 +97,26 @@ namespace KekmetBinds
 
             UpdateFsm();
 
-            if (_frontHydArm.Fsm)
+            if (_frontHydArm.IsInVehicle)
             {
                 // Holding both buttons should do nothing
                 if (KeybindBothHoldOrEitherUp(_frontHydArmKeybindFore, _frontHydArmKeybindAft))
-                    ResetLeverHandler(_frontHydArm, true);
+                    _frontHydArm.ResetLeverHandler(true);
                 else if (_frontHydArmKeybindFore.GetKeybind())
-                    SetLeverHandler(_frontHydArm, "DECREASE");
+                    _frontHydArm.SetLeverHandler("DECREASE");
                 else if (_frontHydArmKeybindAft.GetKeybind())
-                    SetLeverHandler(_frontHydArm, "INCREASE");
+                    _frontHydArm.SetLeverHandler("INCREASE");
             }
 
-            if (_frontHydLoader.Fsm)
+            if (_frontHydLoader.IsInVehicle)
             {
                 // Holding both buttons should do nothing
                 if (KeybindBothHoldOrEitherUp(_frontHydLoaderKeybindFore, _frontHydLoaderKeybindAft))
-                    ResetLeverHandler(_frontHydLoader, true);
+                    _frontHydLoader.ResetLeverHandler(true);
                 else if (_frontHydLoaderKeybindFore.GetKeybind())
-                    SetLeverHandler(_frontHydLoader, "DECREASE");
+                    _frontHydLoader.SetLeverHandler("DECREASE");
                 else if (_frontHydLoaderKeybindAft.GetKeybind())
-                    SetLeverHandler(_frontHydLoader, "INCREASE");
+                    _frontHydLoader.SetLeverHandler("INCREASE");
             }
         }
 
@@ -116,28 +132,6 @@ namespace KekmetBinds
             return kb1.GetKeybind() && kb2.GetKeybind() || kb1.GetKeybindUp() || kb2.GetKeybindUp();
         }
 
-        private static void SetLeverHandler(LeverHandler lh, string fsmEvent)
-        {
-            lh.CapsuleCollider.radius = lh.CapsuleNewRadius;
-            lh.CapsuleCollider.transform.localPosition = lh.LocalPosColl + lh.LeverOffset;
-            lh.Lever.localPosition = lh.LocalPosLever + lh.LeverOffsetDown;
-            lh.Fsm.SendEvent(fsmEvent);
-        }
-
-        private static void ResetLeverHandler(LeverHandler lh, bool stillInVehicle)
-        {
-            if (lh.CapsuleCollider)
-            {
-                lh.CapsuleCollider.radius = lh.DefaultCapsuleRadius;
-                lh.CapsuleCollider.transform.localPosition = lh.LocalPosColl;
-                lh.Lever.localPosition = lh.LocalPosLever;
-            }
-
-            lh.Fsm.SendEvent("FINISHED");
-            if (!stillInVehicle)
-                lh.Fsm = null;
-        }
-
         /// <summary>
         /// Check if the current vehicle has changed and update PlayMakerFSM, colliders, ... if needed.
         /// </summary>
@@ -151,23 +145,15 @@ namespace KekmetBinds
             {
                 default:
                 {
-                    ResetLeverHandler(_frontHydArm, false);
-                    ResetLeverHandler(_frontHydLoader, false);
+                    _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = false);
                     break;
                 }
                 case "Kekmet":
                 {
-                    _frontHydArm.Fsm = GameObject.Find("KEKMET(350-400psi)").transform
-                        .Find("Dashboard/FrontHydArm").gameObject.GetComponent<PlayMakerFSM>();
-                    _frontHydLoader.Fsm = GameObject.Find("KEKMET(350-400psi)").transform
-                        .Find("Dashboard/FrontHydLoader").gameObject.GetComponent<PlayMakerFSM>();
+                    _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = true);
                     break;
                 }
             }
-
-            //Array.ForEach(_leverHandlers, _leverHandler => _leverHandler.Update());
-
-            _leverHandlers.ForEach(leverHandler => leverHandler.Update());
         }
     }
 }
