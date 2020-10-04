@@ -96,40 +96,9 @@ namespace KekmetBinds
             }
 
             UpdateFsm();
-
-            if (_frontHydArm.IsInVehicle)
-            {
-                // Holding both buttons should do nothing
-                if (KeybindBothHoldOrEitherUp(_frontHydArmKeybindFore, _frontHydArmKeybindAft))
-                    _frontHydArm.ResetLeverHandler(true);
-                else if (_frontHydArmKeybindFore.GetKeybind())
-                    _frontHydArm.SetLeverHandler("DECREASE");
-                else if (_frontHydArmKeybindAft.GetKeybind())
-                    _frontHydArm.SetLeverHandler("INCREASE");
-            }
-
-            if (_frontHydLoader.IsInVehicle)
-            {
-                // Holding both buttons should do nothing
-                if (KeybindBothHoldOrEitherUp(_frontHydLoaderKeybindFore, _frontHydLoaderKeybindAft))
-                    _frontHydLoader.ResetLeverHandler(true);
-                else if (_frontHydLoaderKeybindFore.GetKeybind())
-                    _frontHydLoader.SetLeverHandler("DECREASE");
-                else if (_frontHydLoaderKeybindAft.GetKeybind())
-                    _frontHydLoader.SetLeverHandler("INCREASE");
-            }
-        }
-
-        /// <summary>
-        /// Returns true if both Keybinds are held at the same time or either Keybind got released this frames.
-        /// Use case: Holding both buttons should do nothing. --> Reset the capsule colliders.
-        /// </summary>
-        /// <param name="kb1"></param>
-        /// <param name="kb2"></param>
-        /// <returns></returns>
-        private static bool KeybindBothHoldOrEitherUp(Keybind kb1, Keybind kb2)
-        {
-            return kb1.GetKeybind() && kb2.GetKeybind() || kb1.GetKeybindUp() || kb2.GetKeybindUp();
+            
+            _frontHydArm.HandleKeyBinds(_frontHydArmKeybindFore, _frontHydArmKeybindAft);
+            _frontHydLoader.HandleKeyBinds(_frontHydLoaderKeybindFore, _frontHydLoaderKeybindAft);
         }
 
         /// <summary>

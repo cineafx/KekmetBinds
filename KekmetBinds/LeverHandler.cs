@@ -1,4 +1,5 @@
 ﻿using System.Net.Configuration;
+using MSCLoader;
 using UnityEngine;
 
 namespace KekmetBinds
@@ -13,10 +14,10 @@ namespace KekmetBinds
             
             _capsuleCollider = _fsm.gameObject.GetComponent<CapsuleCollider>();
             _defaultCapsuleRadius = _capsuleCollider.radius;
-            _localPosColl = _capsuleCollider.transform.localPosition;
+            _defaultLocalPosColl = _capsuleCollider.transform.localPosition;
 
             _lever = _fsm.gameObject.transform.Find("Lever");
-            _localPosLever = _lever.localPosition;
+            _defaultLocalPosLever = _lever.localPosition;
         }
 
         private bool _isInVehicle;
@@ -37,32 +38,52 @@ namespace KekmetBinds
         private readonly CapsuleCollider _capsuleCollider;
         private readonly Transform _lever;
         private readonly float _defaultCapsuleRadius;
-        private readonly Vector3 _localPosColl;
-        private readonly Vector3 _localPosLever;
+        private readonly Vector3 _defaultLocalPosColl;
+        private readonly Vector3 _defaultLocalPosLever;
         private readonly float _capsuleNewRadius;
         private readonly Vector3 _leverOffset;
         private Vector3 LeverOffsetDown => new Vector3(_leverOffset.x, _leverOffset.y, -_leverOffset.z);
 
-        public void SetLeverHandler(string fsmEvent)
+        private void SetLeverHandler(string fsmEvent)
         {
             _capsuleCollider.radius = _capsuleNewRadius;
-            _capsuleCollider.transform.localPosition = _localPosColl + _leverOffset;
-            _lever.localPosition = _localPosLever + LeverOffsetDown;
+            _capsuleCollider.transform.localPosition = _defaultLocalPosColl + _leverOffset;
+            _lever.localPosition = _defaultLocalPosLever + LeverOffsetDown;
             _fsm.SendEvent(fsmEvent);
         }
 
-        public void ResetLeverHandler(bool stillInVehicle)
+        private void ResetLeverHandler()
         {
-            if (_capsuleCollider)
-            {
-                _capsuleCollider.radius = _defaultCapsuleRadius;
-                _capsuleCollider.transform.localPosition = _localPosColl;
-                _lever.localPosition = _localPosLever;
-            }
-
+            _capsuleCollider.radius = _defaultCapsuleRadius;
+            _capsuleCollider.transform.localPosition = _defaultLocalPosColl;
+            _lever.localPosition = _defaultLocalPosLever;
             _fsm.SendEvent("FINISHED");
-            if (!stillInVehicle)
-                _fsm = null;
+        }
+
+        public void HandleKeyBinds(Keybind fore, Keybind aft)
+        {
+            if (!IsInVehicle) return;
+            
+            // Holding both buttons should do nothing
+            if (KeybindBothHoldOrEitherUp(fore, aft))
+                ResetLeverHandler();
+            else if (fore.GetKeybind())
+                SetLeverHandler("DECREASE");
+            else if (aft.GetKeybind())
+                SetLeverHandler("INCREASE");
+        }
+        
+
+        /// <summary>
+        /// Returns true if both Keybinds are held at the same time or either Keybind got released this frames.
+        /// Use case: Holding both buttons should do nothing. --> Reset the capsule colliders.
+        /// </summary>
+        /// <param name="kb1"></param>
+        /// <param name="kb2"></param>
+        /// <returns></returns>
+        private static bool KeybindBothHoldOrEitherUp(Keybind kb1, Keybind kb2)
+        {
+            return kb1.GetKeybind() && kb2.GetKeybind() || kb1.GetKeybindUp() || kb2.GetKeybindUp();
         }
     }
 }
