@@ -22,28 +22,25 @@ namespace KekmetBinds
         private PlayMakerFSM _frontHydArmFsm;
         private CapsuleCollider _frontHydArmCapsuleCollider;
         private float _frontHydArmDefaultCapsuleRadius;
-        private float _frontHydArmDefaultCapsuleHeight;
 
         private PlayMakerFSM _frontHydLoaderFsm;
         private CapsuleCollider _frontHydLoaderCapsuleCollider;
         private float _frontHydLoaderDefaultCapsuleRadius;
-        private float _frontHydLoaderDefaultCapsuleHeight;
 
-        private static readonly float CapsuleNewRadius = 0.8f;
-        private static readonly float CapsuleNewHeight = CapsuleNewRadius * 2.0f; // Make it a sphere
+        private static readonly float CapsuleNewRadius = 0.6f;
 
 
         private readonly Keybind _frontHydArmKeybindFore =
-            new Keybind("frontHydArmFore", "Front loader arm forward", KeyCode.Keypad2);
+            new Keybind("frontHydArmFore", "Front loader arm forward (lower)", KeyCode.Keypad2);
 
         private readonly Keybind _frontHydArmKeybindAft =
-            new Keybind("frontHydArmAft", "Front loader arm backward", KeyCode.Keypad5);
+            new Keybind("frontHydArmAft", "Front loader arm backward (raise)", KeyCode.Keypad5);
 
         private readonly Keybind _frontHydLoaderKeybindFore =
-            new Keybind("frontHydLoaderFore", "Front loader fork forward", KeyCode.Keypad1);
+            new Keybind("frontHydLoaderFore", "Front loader fork forward (lower)", KeyCode.Keypad1);
 
         private readonly Keybind _frontHydLoaderKeybindAft =
-            new Keybind("frontHydLoaderAft", "Front loader fork backward", KeyCode.Keypad4);
+            new Keybind("frontHydLoaderAft", "Front loader fork backward (raise)", KeyCode.Keypad4);
 
         public override void OnLoad()
         {
@@ -73,14 +70,12 @@ namespace KekmetBinds
                 if (_frontHydArmCapsuleCollider)
                 {
                     _frontHydArmCapsuleCollider.radius = _frontHydArmDefaultCapsuleRadius;
-                    _frontHydArmCapsuleCollider.height = _frontHydArmDefaultCapsuleHeight;
                     _frontHydArmCapsuleCollider = null;
                 }
 
                 if (_frontHydLoaderCapsuleCollider)
                 {
                     _frontHydLoaderCapsuleCollider.radius = _frontHydLoaderDefaultCapsuleRadius;
-                    _frontHydLoaderCapsuleCollider.height = _frontHydLoaderDefaultCapsuleHeight;
                     _frontHydLoaderCapsuleCollider = null;
                 }
 
@@ -99,19 +94,16 @@ namespace KekmetBinds
                     _frontHydArmKeybindFore.GetKeybindUp() || _frontHydArmKeybindAft.GetKeybindUp())
                 {
                     _frontHydArmCapsuleCollider.radius = _frontHydArmDefaultCapsuleRadius;
-                    _frontHydArmCapsuleCollider.height = _frontHydArmDefaultCapsuleHeight;
                     _frontHydArmFsm.SendEvent("FINISHED");
                 }
                 else if (_frontHydArmKeybindFore.GetKeybind())
                 {
                     _frontHydArmCapsuleCollider.radius = CapsuleNewRadius;
-                    _frontHydArmCapsuleCollider.height = CapsuleNewHeight;
                     _frontHydArmFsm.SendEvent("DECREASE");
                 }
                 else if (_frontHydArmKeybindAft.GetKeybind())
                 {
                     _frontHydArmCapsuleCollider.radius = CapsuleNewRadius;
-                    _frontHydArmCapsuleCollider.height = CapsuleNewHeight;
                     _frontHydArmFsm.SendEvent("INCREASE");
                 }
             }
@@ -123,19 +115,16 @@ namespace KekmetBinds
                     _frontHydLoaderKeybindFore.GetKeybindUp() || _frontHydLoaderKeybindAft.GetKeybindUp())
                 {
                     _frontHydLoaderCapsuleCollider.radius = _frontHydLoaderDefaultCapsuleRadius;
-                    _frontHydLoaderCapsuleCollider.height = _frontHydLoaderDefaultCapsuleHeight;
                     _frontHydLoaderFsm.SendEvent("FINISHED");
                 }
                 else if (_frontHydLoaderKeybindFore.GetKeybind())
                 {
                     _frontHydLoaderCapsuleCollider.radius = CapsuleNewRadius;
-                    _frontHydLoaderCapsuleCollider.height = CapsuleNewHeight;
                     _frontHydLoaderFsm.SendEvent("DECREASE");
                 }
                 else if (_frontHydLoaderKeybindAft.GetKeybind())
                 {
                     _frontHydLoaderCapsuleCollider.radius = CapsuleNewRadius;
-                    _frontHydLoaderCapsuleCollider.height = CapsuleNewHeight;
                     _frontHydLoaderFsm.SendEvent("INCREASE");
                 }
             }
@@ -170,14 +159,12 @@ namespace KekmetBinds
             {
                 _frontHydArmCapsuleCollider = _frontHydArmFsm.gameObject.GetComponent<CapsuleCollider>();
                 _frontHydArmDefaultCapsuleRadius = _frontHydArmCapsuleCollider.radius;
-                _frontHydArmDefaultCapsuleHeight = _frontHydArmCapsuleCollider.height;
             }
 
             if (_frontHydLoaderFsm != null)
             {
                 _frontHydLoaderCapsuleCollider = _frontHydLoaderFsm.gameObject.GetComponent<CapsuleCollider>();
                 _frontHydLoaderDefaultCapsuleRadius = _frontHydLoaderCapsuleCollider.radius;
-                _frontHydLoaderDefaultCapsuleHeight = _frontHydLoaderCapsuleCollider.height;
             }
         }
     }
