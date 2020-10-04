@@ -29,7 +29,7 @@ namespace KekmetBinds
                 _isInVehicle = value;
                 if (!_isInVehicle)
                 {
-                    _fsm.SendEvent("FINISHED");
+                    ResetLeverHandler();
                 }
             }
         }

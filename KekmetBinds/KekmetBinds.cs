@@ -44,6 +44,18 @@ namespace KekmetBinds
             new Keybind("frontHydLoaderAft", "Front loader fork backward (raise)", KeyCode.Keypad4);
 
         /// <summary>
+        /// All settings should be created here. 
+        /// DO NOT put anything else here that settings.
+        /// </summary>
+        public override void ModSettings()
+        {
+            Keybind.Add(this, _frontHydArmKeybindFore);
+            Keybind.Add(this, _frontHydArmKeybindAft);
+            Keybind.Add(this, _frontHydLoaderKeybindFore);
+            Keybind.Add(this, _frontHydLoaderKeybindAft);
+        }
+
+        /// <summary>
         /// Called once, when mod is loading after game is fully loaded
         /// </summary>
         public override void OnLoad()
@@ -67,18 +79,6 @@ namespace KekmetBinds
         }
 
         /// <summary>
-        /// All settings should be created here. 
-        /// DO NOT put anything else here that settings.
-        /// </summary>
-        public override void ModSettings()
-        {
-            Keybind.Add(this, _frontHydArmKeybindFore);
-            Keybind.Add(this, _frontHydArmKeybindAft);
-            Keybind.Add(this, _frontHydLoaderKeybindFore);
-            Keybind.Add(this, _frontHydLoaderKeybindAft);
-        }
-
-        /// <summary>
         /// Update is called once per frame.
         /// </summary>
         public override void Update()
@@ -87,42 +87,23 @@ namespace KekmetBinds
             if (_playerCurrentVehicle.Value.Length == 0)
             {
                 if (_playerLastVehicle == _playerCurrentVehicle.Value) return;
-                
+
                 _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = false);
 
                 _playerLastVehicle = _playerCurrentVehicle.Value;
-                //ModConsole.Print("New vehicle: None");
                 return;
             }
 
-            UpdateFsm();
-            
+            // Check if the current vehicle has changed and tell the handlers
+            if (_playerLastVehicle != _playerCurrentVehicle.Value)
+            {
+                _playerLastVehicle = _playerCurrentVehicle.Value;
+                _leverHandlers.ForEach(leverHandler =>
+                    leverHandler.IsInVehicle = _playerCurrentVehicle.Value == "Kekmet");
+            }
+
             _frontHydArm.HandleKeyBinds(_frontHydArmKeybindFore, _frontHydArmKeybindAft);
             _frontHydLoader.HandleKeyBinds(_frontHydLoaderKeybindFore, _frontHydLoaderKeybindAft);
-        }
-
-        /// <summary>
-        /// Check if the current vehicle has changed and update PlayMakerFSM, colliders, ... if needed.
-        /// </summary>
-        private void UpdateFsm()
-        {
-            if (_playerLastVehicle == _playerCurrentVehicle.Value) return;
-            _playerLastVehicle = _playerCurrentVehicle.Value;
-            //ModConsole.Print("New Vehicle: " + _playerLastVehicle);
-
-            switch (_playerCurrentVehicle.Value)
-            {
-                default:
-                {
-                    _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = false);
-                    break;
-                }
-                case "Kekmet":
-                {
-                    _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = true);
-                    break;
-                }
-            }
         }
     }
 }
