@@ -21,11 +21,6 @@ namespace KekmetBinds
         private FsmString _playerCurrentVehicle;
         private string _playerLastVehicle;
 
-        //Frontloader Arm
-        private LeverHandler _frontHydArm;
-
-        //Frontloader Loader (the fork thing)
-        private LeverHandler _frontHydLoader;
 
         //All LeverHandlers that use the default thing in UpdateFsm()
         private List<LeverHandler> _leverHandlers;
@@ -62,20 +57,23 @@ namespace KekmetBinds
         {
             _playerCurrentVehicle = PlayMakerGlobals.Instance.Variables.FindFsmString("PlayerCurrentVehicle");
 
-            _frontHydArm = new LeverHandler(
-                GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydArm").gameObject
-                    .GetComponent<PlayMakerFSM>(),
-                0.7f,
-                new Vector3(0.35f, 1.25f, 0.5f)
-            );
-            _frontHydLoader = new LeverHandler(
-                GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydLoader").gameObject
-                    .GetComponent<PlayMakerFSM>(),
-                0.7f,
-                new Vector3(0.35f, 1.25f, 0.5f)
-            );
-
-            _leverHandlers = new List<LeverHandler> {_frontHydArm, _frontHydLoader};
+            _leverHandlers = new List<LeverHandler>
+            {
+                //Frontloader Arm
+                new LeverHandler(
+                    GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydArm")
+                        .gameObject.GetComponent<PlayMakerFSM>(),
+                    0.7f,
+                    new Vector3(0.35f, 1.25f, 0.5f)
+                ),
+                //Frontloader Loader (the fork thing)
+                new LeverHandler(
+                    GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydLoader")
+                        .gameObject.GetComponent<PlayMakerFSM>(),
+                    0.7f,
+                    new Vector3(0.35f, 1.25f, 0.5f)
+                )
+            };
         }
 
         /// <summary>
@@ -88,9 +86,8 @@ namespace KekmetBinds
             {
                 if (_playerLastVehicle == _playerCurrentVehicle.Value) return;
 
-                _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = false);
-
                 _playerLastVehicle = _playerCurrentVehicle.Value;
+                _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = false);
                 return;
             }
 
@@ -102,8 +99,8 @@ namespace KekmetBinds
                     leverHandler.IsInVehicle = _playerCurrentVehicle.Value == "Kekmet");
             }
 
-            _frontHydArm.HandleKeyBinds(_frontHydArmKeybindFore, _frontHydArmKeybindAft);
-            _frontHydLoader.HandleKeyBinds(_frontHydLoaderKeybindFore, _frontHydLoaderKeybindAft);
+            _leverHandlers.ForEach(leverHandler =>
+                leverHandler.HandleKeyBinds(_frontHydArmKeybindFore, _frontHydArmKeybindAft));
         }
     }
 }
