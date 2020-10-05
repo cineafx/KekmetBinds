@@ -28,22 +28,22 @@ namespace KekmetBinds
 
         // Keybinds
         private readonly Keybind _frontHydArmKeybindFore =
-            new Keybind("frontHydArmFore", "Front loader arm forward (lower)", KeyCode.Keypad2);
+            new Keybind("kekMetFrontHydArmFore", "forward (lower)", KeyCode.Keypad2);
 
         private readonly Keybind _frontHydArmKeybindAft =
-            new Keybind("frontHydArmAft", "Front loader arm backward (raise)", KeyCode.Keypad5);
+            new Keybind("kekMetFrontHydArmAft", "backward (raise)", KeyCode.Keypad5);
 
         private readonly Keybind _frontHydLoaderKeybindFore =
-            new Keybind("frontHydLoaderFore", "Front loader fork forward (lower)", KeyCode.Keypad1);
+            new Keybind("kekMetFrontHydLoaderFore", "forward (lower)", KeyCode.Keypad1);
 
         private readonly Keybind _frontHydLoaderKeybindAft =
-            new Keybind("frontHydLoaderAft", "Front loader fork backward (raise)", KeyCode.Keypad4);
+            new Keybind("kekMetFrontHydLoaderAft", "backward (raise)", KeyCode.Keypad4);
 
         private readonly Keybind _throttleKeybindFore =
-            new Keybind("throttleFore", "Hand throttle forward (lower)", KeyCode.Keypad3);
+            new Keybind("kekMetThrottleFore", "forward (lower)", KeyCode.Keypad3);
 
         private readonly Keybind _throttleKeybindAft =
-            new Keybind("throttleAft", "Hand throttle fork backward (raise)", KeyCode.Keypad6);
+            new Keybind("kekMetThrottleAft", "backward (raise)", KeyCode.Keypad6);
 
         /// <summary>
         /// All settings should be created here. 
@@ -51,10 +51,13 @@ namespace KekmetBinds
         /// </summary>
         public override void ModSettings()
         {
+            Keybind.AddHeader(this, "Front hydraulics arm");
             Keybind.Add(this, _frontHydArmKeybindFore);
             Keybind.Add(this, _frontHydArmKeybindAft);
+            Keybind.AddHeader(this, "Front hydraulics fork");
             Keybind.Add(this, _frontHydLoaderKeybindFore);
             Keybind.Add(this, _frontHydLoaderKeybindAft);
+            Keybind.AddHeader(this, "Hand throttle");
             Keybind.Add(this, _throttleKeybindFore);
             Keybind.Add(this, _throttleKeybindAft);
         }
