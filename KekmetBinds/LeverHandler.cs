@@ -1,5 +1,4 @@
-﻿using System.Net.Configuration;
-using MSCLoader;
+﻿using MSCLoader;
 using UnityEngine;
 
 namespace KekmetBinds
@@ -44,7 +43,7 @@ namespace KekmetBinds
         }
 
         /// <summary>
-        /// Move the colliders based on their offset.
+        /// Move the collider in front of the cursor and send the <c>fsmEvent</c> event.
         /// </summary>
         /// <param name="fsmEvent"></param>
         private void SetLeverHandler(string fsmEvent)
@@ -56,7 +55,7 @@ namespace KekmetBinds
         }
 
         /// <summary>
-        /// Move the colliders back to their default location.
+        /// Move the colliders back to their default location and send the FINISHED event.
         /// </summary>
         private void ResetLeverHandler()
         {
