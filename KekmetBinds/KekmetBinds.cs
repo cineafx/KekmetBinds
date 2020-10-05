@@ -18,16 +18,16 @@ namespace KekmetBinds
         // This will create subfolder in Assets folder for your mod.
         public override bool UseAssetsFolder => false;
 
-        
+
         //Used to tell if the player has entered / exited a vehicle.
         private FsmString _playerCurrentVehicle;
         private string _playerLastVehicle;
 
-        
+
         //All LeverHandlers checked every frame.
         private List<LeverHandler> _leverHandlers;
 
-        
+
         // Keybinds
         private readonly Keybind _frontHydArmKeybindFore =
             new Keybind("frontHydArmFore", "Front loader arm forward (lower)", KeyCode.Keypad2);
@@ -75,31 +75,22 @@ namespace KekmetBinds
                     GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydArm")
                         .gameObject.GetComponent<PlayMakerFSM>(),
                     _frontHydArmKeybindFore,
-                    _frontHydArmKeybindAft,
-                    0.7f,
-                    new Vector3(0.35f, 1.25f, 0.5f),
-                    new Vector3(1, 1, -1)
+                    _frontHydArmKeybindAft
                 ),
                 //Frontloader Loader (the fork thing)
                 new LeverHandler(
                     GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydLoader")
                         .gameObject.GetComponent<PlayMakerFSM>(),
                     _frontHydLoaderKeybindFore,
-                    _frontHydLoaderKeybindAft,
-                    0.7f,
-                    new Vector3(0.35f, 1.25f, 0.5f),
-                    new Vector3(1, 1, -1)
+                    _frontHydLoaderKeybindAft
                 ),
                 //Handthrottle
                 new LeverHandler(
                     GameObject.Find("KEKMET(350-400psi)").transform.Find("LOD/Dashboard/Throttle")
                         .gameObject.GetComponent<PlayMakerFSM>(),
                     _throttleKeybindFore,
-                    _throttleKeybindAft,
-                    0.7f,
-                    new Vector3(0.25f, 0.75f, 0.25f),
-                    new Vector3(-1, -1, -1),
-                    "Pivot")
+                    _throttleKeybindAft
+                )
             };
         }
 

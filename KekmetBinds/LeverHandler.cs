@@ -12,27 +12,24 @@ namespace KekmetBinds
         /// <param name="fsm">Fsm of the controlling component.</param>
         /// <param name="fore">Fore movement keybind.</param>
         /// <param name="aft">Aft movement keybind.</param>
-        /// <param name="capsuleNewRadius">Radius for the capsule collider.</param>
-        /// <param name="offsetCollider">By how much and in which direction should the collider be moved.</param>
-        /// <param name="offsetLeverDirection">In which direction should be visible lever be moved back. Vector3 with either -1 or 1 inside the fields.</param>
-        /// <param name="leverName">Name of the visible lever to be moved back.</param>
-        public LeverHandler(PlayMakerFSM fsm, Keybind fore, Keybind aft, float capsuleNewRadius,
-            Vector3 offsetCollider, Vector3 offsetLeverDirection, string leverName = "Lever")
+        public LeverHandler(PlayMakerFSM fsm, Keybind fore, Keybind aft)
         {
             _fsm = fsm;
             _fore = fore;
             _aft = aft;
-            _capsuleNewRadius = capsuleNewRadius;
-            _offsetCollider = offsetCollider;
-            _offsetLever = Vector3.Scale(offsetCollider, offsetLeverDirection);
 
             _capsuleCollider = _fsm.gameObject.GetComponent<CapsuleCollider>();
-            _defaultCapsuleRadius = _capsuleCollider.radius;
-            _defaultLocalPosCollider = _capsuleCollider.transform.localPosition;
+            _defaultColliderCenter = _capsuleCollider.center;
 
-            _lever = _fsm.gameObject.transform.Find(leverName);
-            _defaultLocalPosLever = _lever.localPosition;
+            _camera = (Camera) Object.FindObjectOfType(typeof(Camera));
         }
+
+        private readonly PlayMakerFSM _fsm;
+        private readonly CapsuleCollider _capsuleCollider;
+        private readonly Keybind _fore;
+        private readonly Keybind _aft;
+        private readonly Vector3 _defaultColliderCenter;
+        private readonly Camera _camera;
 
         private bool _isInVehicle;
 
@@ -46,27 +43,15 @@ namespace KekmetBinds
             }
         }
 
-        private readonly PlayMakerFSM _fsm;
-        private readonly CapsuleCollider _capsuleCollider;
-        private readonly Transform _lever;
-        private readonly Keybind _fore;
-        private readonly Keybind _aft;
-        private readonly float _defaultCapsuleRadius;
-        private readonly Vector3 _defaultLocalPosCollider;
-        private readonly Vector3 _defaultLocalPosLever;
-        private readonly float _capsuleNewRadius;
-        private readonly Vector3 _offsetCollider;
-        private readonly Vector3 _offsetLever;
-
         /// <summary>
         /// Move the colliders based on their offset.
         /// </summary>
         /// <param name="fsmEvent"></param>
         private void SetLeverHandler(string fsmEvent)
         {
-            _capsuleCollider.radius = _capsuleNewRadius;
-            _capsuleCollider.transform.localPosition = _defaultLocalPosCollider + _offsetCollider;
-            _lever.localPosition = _defaultLocalPosLever + _offsetLever;
+            // Position 1m away from the center of the camera
+            Vector3 pos = _camera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 1f));
+            _capsuleCollider.center = _capsuleCollider.transform.InverseTransformPoint(pos);
             _fsm.SendEvent(fsmEvent);
         }
 
@@ -75,9 +60,7 @@ namespace KekmetBinds
         /// </summary>
         private void ResetLeverHandler()
         {
-            _capsuleCollider.radius = _defaultCapsuleRadius;
-            _capsuleCollider.transform.localPosition = _defaultLocalPosCollider;
-            _lever.localPosition = _defaultLocalPosLever;
+            _capsuleCollider.center = _defaultColliderCenter;
             _fsm.SendEvent("FINISHED");
         }
 
