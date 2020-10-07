@@ -1,5 +1,7 @@
-﻿using MSCLoader;
+﻿using System;
+using MSCLoader;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace KekmetBinds
 {
@@ -11,11 +13,27 @@ namespace KekmetBinds
         /// <param name="fsm">Fsm of the controlling component.</param>
         /// <param name="fore">Fore movement keybind.</param>
         /// <param name="aft">Aft movement keybind.</param>
-        public LeverHandler(PlayMakerFSM fsm, Keybind fore, Keybind aft)
+        /// <param name="joystick"></param>
+        /// <param name="axis"></param>
+        /// <param name="lowered"></param>
+        /// <param name="raised"></param>
+        public LeverHandler(
+            PlayMakerFSM fsm,
+            Keybind fore,
+            Keybind aft,
+            Settings joystick,
+            Settings axis,
+            Settings lowered,
+            Settings raised
+        )
         {
             _fsm = fsm;
             _fore = fore;
             _aft = aft;
+            _joystick = joystick;
+            _axis = axis;
+            _lowered = lowered;
+            _raised = raised;
 
             _capsuleCollider = _fsm.gameObject.GetComponent<CapsuleCollider>();
             _defaultColliderCenter = _capsuleCollider.center;
@@ -27,6 +45,10 @@ namespace KekmetBinds
         private readonly CapsuleCollider _capsuleCollider;
         private readonly Keybind _fore;
         private readonly Keybind _aft;
+        private readonly Settings _joystick;
+        private readonly Settings _axis;
+        private readonly Settings _lowered;
+        private readonly Settings _raised;
         private readonly Vector3 _defaultColliderCenter;
         private readonly Camera _camera;
 
@@ -63,11 +85,14 @@ namespace KekmetBinds
             _fsm.SendEvent("FINISHED");
         }
 
+        private const int EveryXCalls = 60;
+        private int _counter = 0;
+
         /// <summary>
         /// Should be run every frame (inside of Update()).
         /// Requires the public variable IsInVehicle to be set correctly.
         /// </summary>
-        public void HandleKeyBinds()
+        public void Handle()
         {
             if (!IsInVehicle) return;
 
@@ -78,6 +103,16 @@ namespace KekmetBinds
                 SetLeverHandler("DECREASE");
             else if (_aft.GetKeybind())
                 SetLeverHandler("INCREASE");
+
+
+            if (Convert.ToInt32(_joystick.Value) == 0) return;
+
+            if (++_counter < EveryXCalls) return;
+            _counter = 0;
+
+            float raw = GetJoystickInput(_joystick, _axis);
+            float percentage = GetAdjustedAxisPercentage(_joystick, _axis, _lowered, _raised);
+            ModConsole.Print($"{raw} --- {percentage}");
         }
 
         /// <summary>
@@ -90,6 +125,20 @@ namespace KekmetBinds
         private static bool KeybindBothHoldOrEitherUp(Keybind kb1, Keybind kb2)
         {
             return kb1.GetKeybind() && kb2.GetKeybind() || kb1.GetKeybindUp() || kb2.GetKeybindUp();
+        }
+
+        private static float GetAdjustedAxisPercentage(Settings joystick, Settings axis, Settings lowered,
+            Settings raised)
+        {
+            float input = GetJoystickInput(joystick, axis);
+            float lower = Convert.ToInt32(lowered.Value) / 100f;
+            float raise = Convert.ToInt32(raised.Value) / 100f;
+            return Mathf.InverseLerp(lower, raise, input) * 2 - 1;
+        }
+
+        private static float GetJoystickInput(Settings joystick, Settings axis)
+        {
+            return Input.GetAxis($"Joy{joystick.Value} Axis {axis.Value}");
         }
     }
 }
