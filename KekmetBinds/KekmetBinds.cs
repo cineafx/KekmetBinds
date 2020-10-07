@@ -25,7 +25,7 @@ namespace KekmetBinds
 
 
         //All LeverHandlers checked every frame.
-        private List<LeverHandler> _leverHandlers;
+        private readonly List<LeverHandler> _leverHandlers = new List<LeverHandler>();
 
         private readonly string[] _joystickNames =
         {
@@ -114,43 +114,37 @@ namespace KekmetBinds
         {
             _currentVic = PlayMakerGlobals.Instance.Variables.FindFsmString("PlayerCurrentVehicle");
 
-            _leverHandlers = new List<LeverHandler>
-            {
-                //Frontloader Arm
-                new LeverHandler(
-                    GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydArm")
-                        .gameObject.GetComponent<PlayMakerFSM>(),
-                    _frontHydArmKeybindFore,
-                    _frontHydArmKeybindAft,
-                    _frontHydArmJoystick,
-                    _frontHydArmAxis,
-                    _frontHydArmLowered,
-                    _frontHydArmRaised
-                ),
-                //Frontloader Loader (the fork thing)
-                new LeverHandler(
-                    GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydLoader")
-                        .gameObject.GetComponent<PlayMakerFSM>(),
-                    _frontHydLoaderKeybindFore,
-                    _frontHydLoaderKeybindAft,
-                    _frontHydLoaderJoystick,
-                    _frontHydLoaderAxis,
-                    _frontHydLoaderLowered,
-                    _frontHydLoaderRaised
-                ),
-                //Handthrottle
-                new LeverHandler(
-                    GameObject.Find("KEKMET(350-400psi)").transform.Find("LOD/Dashboard/Throttle")
-                        .gameObject.GetComponent<PlayMakerFSM>(),
-                    _throttleKeybindFore,
-                    _throttleKeybindAft,
-                    _throttleJoystick,
-                    _throttleAxis,
-                    _throttleLowered,
-                    _throttleRaised,
-                    70
-                )
-            };
+            _leverHandlers.Add(new LeverHandler(
+                GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydArm")
+                    .gameObject.GetComponent<PlayMakerFSM>(),
+                _frontHydArmKeybindFore,
+                _frontHydArmKeybindAft,
+                _frontHydArmJoystick,
+                _frontHydArmAxis,
+                _frontHydArmLowered,
+                _frontHydArmRaised
+            ));
+            _leverHandlers.Add(new LeverHandler(
+                GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydLoader")
+                    .gameObject.GetComponent<PlayMakerFSM>(),
+                _frontHydLoaderKeybindFore,
+                _frontHydLoaderKeybindAft,
+                _frontHydLoaderJoystick,
+                _frontHydLoaderAxis,
+                _frontHydLoaderLowered,
+                _frontHydLoaderRaised
+            ));
+            _leverHandlers.Add(new LeverHandler(
+                GameObject.Find("KEKMET(350-400psi)").transform.Find("LOD/Dashboard/Throttle")
+                    .gameObject.GetComponent<PlayMakerFSM>(),
+                _throttleKeybindFore,
+                _throttleKeybindAft,
+                _throttleJoystick,
+                _throttleAxis,
+                _throttleLowered,
+                _throttleRaised,
+                70
+            ));
         }
 
         /// <summary>
