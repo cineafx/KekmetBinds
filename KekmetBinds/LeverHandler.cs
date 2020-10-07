@@ -7,6 +7,10 @@ namespace KekmetBinds
 {
     public class LeverHandler
     {
+        // Bigger values = bigger steps
+        // Smaller values = more jitter
+        private const float JoystickFloatComparator = 0.0025f;
+
         /// <summary>
         /// 
         /// </summary>
@@ -17,6 +21,7 @@ namespace KekmetBinds
         /// <param name="axis"></param>
         /// <param name="lowered"></param>
         /// <param name="raised"></param>
+        /// <param name="leverPosMax"></param>
         public LeverHandler(
             PlayMakerFSM fsm,
             Keybind fore,
@@ -24,7 +29,8 @@ namespace KekmetBinds
             Settings joystick,
             Settings axis,
             Settings lowered,
-            Settings raised
+            Settings raised,
+            float leverPosMax = 1
         )
         {
             _fsm = fsm;
@@ -34,6 +40,7 @@ namespace KekmetBinds
             _axis = axis;
             _lowered = lowered;
             _raised = raised;
+            _leverPosMax = leverPosMax;
 
             _capsuleCollider = _fsm.gameObject.GetComponent<CapsuleCollider>();
             _defaultColliderCenter = _capsuleCollider.center;
@@ -49,6 +56,7 @@ namespace KekmetBinds
         private readonly Settings _axis;
         private readonly Settings _lowered;
         private readonly Settings _raised;
+        private readonly float _leverPosMax;
         private readonly Vector3 _defaultColliderCenter;
         private readonly Camera _camera;
 
@@ -85,9 +93,6 @@ namespace KekmetBinds
             _fsm.SendEvent("FINISHED");
         }
 
-        private const int EveryXCalls = 60;
-        private int _counter = 0;
-
         /// <summary>
         /// Should be run every frame (inside of Update()).
         /// Requires the public variable IsInVehicle to be set correctly.
@@ -104,15 +109,26 @@ namespace KekmetBinds
             else if (_aft.GetKeybind())
                 SetLeverHandler("INCREASE");
 
-
+            //No joystick configured
             if (Convert.ToInt32(_joystick.Value) == 0) return;
 
-            if (++_counter < EveryXCalls) return;
-            _counter = 0;
-
-            float raw = GetJoystickInput(_joystick, _axis);
+            float curVal = _fsm.FsmVariables.GetFsmFloat("LeverPos").Value / _leverPosMax;
             float percentage = GetAdjustedAxisPercentage(_joystick, _axis, _lowered, _raised);
-            ModConsole.Print($"{raw} --- {percentage}");
+
+            if ((curVal - percentage) / 2f > JoystickFloatComparator)
+            {
+                // Don't activate the state if it's already active
+                if (_fsm.ActiveStateName != "DECREASE")
+                    SetLeverHandler("DECREASE");
+            }
+            else if ((curVal - percentage) / 2f < -JoystickFloatComparator)
+            {
+                // Don't activate the state if it's already active
+                if (_fsm.ActiveStateName != "INCREASE")
+                    SetLeverHandler("INCREASE");
+            }
+            else
+                ResetLeverHandler();
         }
 
         /// <summary>
@@ -133,7 +149,7 @@ namespace KekmetBinds
             float input = GetJoystickInput(joystick, axis);
             float lower = Convert.ToInt32(lowered.Value) / 100f;
             float raise = Convert.ToInt32(raised.Value) / 100f;
-            return Mathf.InverseLerp(lower, raise, input) * 2 - 1;
+            return Mathf.InverseLerp(lower, raise, input);
         }
 
         private static float GetJoystickInput(Settings joystick, Settings axis)

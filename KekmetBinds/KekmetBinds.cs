@@ -142,7 +142,8 @@ namespace KekmetBinds
                     _throttleJoystick,
                     _throttleAxis,
                     _throttleLowered,
-                    _throttleRaised
+                    _throttleRaised,
+                    70
                 )
             };
         }
