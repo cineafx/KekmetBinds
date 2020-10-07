@@ -27,11 +27,13 @@ namespace KekmetBinds
         //All LeverHandlers checked every frame.
         private List<LeverHandler> _leverHandlers;
 
-        private readonly string[] _inputWithOffset =
+        private readonly string[] _joystickNames =
         {
             "None", "Not connected", "Not connected", "Not connected", "Not connected", "Not connected",
             "Not connected", "Not connected", "Not connected"
         };
+
+        private readonly string[] _axisNames = {"", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
 
 
         // @formatter:off
@@ -47,18 +49,18 @@ namespace KekmetBinds
 
         //Settings
         private readonly Settings _frontHydArmJoystick = new Settings("kekMetFrontHydArmJoystick", "Joystick", 0);
-        private readonly Settings _frontHydArmAxis = new Settings("kekMetFrontHydArmAxis", "Axis", 0);
-        private readonly Settings _frontHydArmLowered = new Settings("kekMetFrontHydArmLowered", "Fully Lowered %", -100);
+        private readonly Settings _frontHydArmAxis = new Settings("kekMetFrontHydArmAxis", "Axis", 1);
+        private readonly Settings _frontHydArmLowered = new Settings("kekMetFrontHydArmLowered", "Fully lowered %", -100);
         private readonly Settings _frontHydArmRaised = new Settings("kekMetFrontHydArmRaised", "Fully raised %", 100);
 
         private readonly Settings _frontHydLoaderJoystick = new Settings("kekMetFrontHydLoaderJoystick", "Joystick", 0);
-        private readonly Settings _frontHydLoaderAxis = new Settings("kekMetFrontHydLoaderAxis", "Axis", 0);
-        private readonly Settings _frontHydLoaderLowered = new Settings("kekMetFrontHydLoaderLowered", "Fully Lowered %", -100);
+        private readonly Settings _frontHydLoaderAxis = new Settings("kekMetFrontHydLoaderAxis", "Axis", 1);
+        private readonly Settings _frontHydLoaderLowered = new Settings("kekMetFrontHydLoaderLowered", "Fully lowered %", -100);
         private readonly Settings _frontHydLoaderRaised = new Settings("kekMetFrontHydLoaderRaised", "Fully raised %", 100);
 
         private readonly Settings _throttleJoystick = new Settings("kekMetThrottleJoystick", "Joystick", 0);
-        private readonly Settings _throttleAxis = new Settings("kekMetThrottleAxis", "Axis", 0);
-        private readonly Settings _throttleLowered = new Settings("kekMetThrottleLowered", "Fully Lowered %", -100);
+        private readonly Settings _throttleAxis = new Settings("kekMetThrottleAxis", "Axis", 1);
+        private readonly Settings _throttleLowered = new Settings("kekMetThrottleLowered", "Fully lowered %", -100);
         private readonly Settings _throttleRaised = new Settings("kekMetThrottleRaised", "Fully raised %", 100);
         // @formatter:on
 
@@ -69,24 +71,29 @@ namespace KekmetBinds
         public override void ModSettings()
         {
             //Prep
-            Array.Copy(Input.GetJoystickNames(), 0, _inputWithOffset, 1, Input.GetJoystickNames().Length);
+            Array.Copy(Input.GetJoystickNames(), 0, _joystickNames, 1, Input.GetJoystickNames().Length);
+            
+            
 
             //Settings
+            Settings.AddText(this, "Axis use the same numbering system as the \"car controls\" menu. 1 - 10 not 0 - 9");
+            Settings.AddText(this, "");
+            
             Settings.AddHeader(this, "Front hydraulic arm");
-            Settings.AddSlider(this, _frontHydArmJoystick, 0, _inputWithOffset.Length - 1, _inputWithOffset);
-            Settings.AddSlider(this, _frontHydArmAxis, 0, 9);
+            Settings.AddSlider(this, _frontHydArmJoystick, 0, _joystickNames.Length - 1, _joystickNames);
+            Settings.AddSlider(this, _frontHydArmAxis, 1, 10, _axisNames);
             Settings.AddSlider(this, _frontHydArmLowered, -100, 100);
             Settings.AddSlider(this, _frontHydArmRaised, -100, 100);
 
             Settings.AddHeader(this, "Front hydraulic fork");
-            Settings.AddSlider(this, _frontHydLoaderJoystick, 0, _inputWithOffset.Length - 1, _inputWithOffset);
-            Settings.AddSlider(this, _frontHydLoaderAxis, 0, 9);
+            Settings.AddSlider(this, _frontHydLoaderJoystick, 0, _joystickNames.Length - 1, _joystickNames);
+            Settings.AddSlider(this, _frontHydLoaderAxis, 1, 10, _axisNames);
             Settings.AddSlider(this, _frontHydLoaderLowered, -100, 100);
             Settings.AddSlider(this, _frontHydLoaderRaised, -100, 100);
 
             Settings.AddHeader(this, "Hand throttle");
-            Settings.AddSlider(this, _throttleJoystick, 0, _inputWithOffset.Length - 1, _inputWithOffset);
-            Settings.AddSlider(this, _throttleAxis, 0, 9);
+            Settings.AddSlider(this, _throttleJoystick, 0, _joystickNames.Length - 1, _joystickNames);
+            Settings.AddSlider(this, _throttleAxis, 1, 10, _axisNames);
             Settings.AddSlider(this, _throttleLowered, -100, 100);
             Settings.AddSlider(this, _throttleRaised, -100, 100);
 
