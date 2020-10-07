@@ -9,19 +9,20 @@ namespace KekmetBinds
     {
         // Bigger values = bigger steps
         // Smaller values = more jitter
+        // TODO: Move this into a setting? 🤔
         private const float JoystickFloatComparator = 0.0025f;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="fsm">Fsm of the controlling component.</param>
-        /// <param name="fore">Fore movement keybind.</param>
-        /// <param name="aft">Aft movement keybind.</param>
-        /// <param name="joystick"></param>
-        /// <param name="axis"></param>
-        /// <param name="lowered"></param>
-        /// <param name="raised"></param>
-        /// <param name="leverPosMax"></param>
+        /// <param name="fore">Keybind: Fore movement.</param>
+        /// <param name="aft">Keybind: Aft movement.</param>
+        /// <param name="joystick">Setting: Joystick index.</param>
+        /// <param name="axis">Setting: Axis index.</param>
+        /// <param name="lowered">Setting: Joystick % for the axis to be fully lowered.</param>
+        /// <param name="raised">Setting: Joystick % for the axis to be fully raised.</param>
+        /// <param name="leverPosMax">Some levers go from 0 to 1 (FrontHyd). Some go from 0 to 70 (Throttle).</param>
         public LeverHandler(
             PlayMakerFSM fsm,
             Keybind fore,
@@ -75,7 +76,7 @@ namespace KekmetBinds
         /// <summary>
         /// Move the collider in front of the cursor and send the <c>fsmEvent</c> event.
         /// </summary>
-        /// <param name="fsmEvent"></param>
+        /// <param name="fsmEvent">FSM event name like "INCREASE" or "DECREASE"</param>
         private void SetLeverHandler(string fsmEvent)
         {
             // Position 1m away from the center of the camera
@@ -112,18 +113,20 @@ namespace KekmetBinds
             //No joystick configured
             if (Convert.ToInt32(_joystick.Value) == 0) return;
 
-            float curVal = _fsm.FsmVariables.GetFsmFloat("LeverPos").Value / _leverPosMax;
-            float percentage = GetAdjustedAxisPercentage(_joystick, _axis, _lowered, _raised);
+            float currentLevelPos = _fsm.FsmVariables.GetFsmFloat("LeverPos").Value / _leverPosMax;
+            float currentJoystickPos = GetAdjustedAxisPercentage(_joystick, _axis, _lowered, _raised);
 
-            if ((curVal - percentage) / 2f > JoystickFloatComparator)
+            if ((currentLevelPos - currentJoystickPos) / 2f > JoystickFloatComparator)
             {
                 // Don't activate the state if it's already active
+                // These two IFs can't be merged. The else path would run every update and reset the handlers!
                 if (_fsm.ActiveStateName != "DECREASE")
                     SetLeverHandler("DECREASE");
             }
-            else if ((curVal - percentage) / 2f < -JoystickFloatComparator)
+            else if ((currentLevelPos - currentJoystickPos) / 2f < -JoystickFloatComparator)
             {
                 // Don't activate the state if it's already active
+                // These two IFs can't be merged. The else path would run every update and reset the handlers!
                 if (_fsm.ActiveStateName != "INCREASE")
                     SetLeverHandler("INCREASE");
             }
@@ -135,23 +138,37 @@ namespace KekmetBinds
         /// Returns true if both Keybinds are held at the same time or either Keybind got released this frames.
         /// Use case: Holding both buttons should do nothing. --> Reset the capsule colliders.
         /// </summary>
-        /// <param name="kb1"></param>
-        /// <param name="kb2"></param>
+        /// <param name="kb1">Setting: Keybind 1.</param>
+        /// <param name="kb2">Setting: Keybind 2.</param>
         /// <returns></returns>
         private static bool KeybindBothHoldOrEitherUp(Keybind kb1, Keybind kb2)
         {
             return kb1.GetKeybind() && kb2.GetKeybind() || kb1.GetKeybindUp() || kb2.GetKeybindUp();
         }
 
+        /// <summary>
+        /// Inversed Lerp adjustment based on settings..
+        /// </summary>
+        /// <param name="joystick">Setting: Joystick index.</param>
+        /// <param name="axis">Setting: Axis index.</param>
+        /// <param name="lowered">Setting: Joystick % for the axis to be fully lowered.</param>
+        /// <param name="raised">Setting: Joystick % for the axis to be fully raised.</param>
+        /// <returns>Inversed lerp adjusted joystick position.</returns>
         private static float GetAdjustedAxisPercentage(Settings joystick, Settings axis, Settings lowered,
             Settings raised)
         {
-            float input = GetJoystickInput(joystick, axis);
             float lower = Convert.ToInt32(lowered.Value) / 100f;
             float raise = Convert.ToInt32(raised.Value) / 100f;
+            float input = GetJoystickInput(joystick, axis);
             return Mathf.InverseLerp(lower, raise, input);
         }
 
+        /// <summary>
+        /// Get the raw -1...1 values from a joystick + axis setting.
+        /// </summary>
+        /// <param name="joystick">Setting: Joystick index.</param>
+        /// <param name="axis">Setting: Axis index.</param>
+        /// <returns>Current joystick value from -1 to 1.</returns>
         private static float GetJoystickInput(Settings joystick, Settings axis)
         {
             return Input.GetAxis($"Joy{joystick.Value} Axis {axis.Value}");

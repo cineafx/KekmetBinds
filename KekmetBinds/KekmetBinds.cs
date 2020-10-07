@@ -20,8 +20,8 @@ namespace KekmetBinds
 
 
         //Used to tell if the player has entered / exited a vehicle.
-        private FsmString _playerCurrentVehicle;
-        private string _playerLastVehicle;
+        private FsmString _currentVic;
+        private string _lastVic;
 
 
         //All LeverHandlers checked every frame.
@@ -72,13 +72,11 @@ namespace KekmetBinds
         {
             //Prep
             Array.Copy(Input.GetJoystickNames(), 0, _joystickNames, 1, Input.GetJoystickNames().Length);
-            
-            
 
             //Settings
             Settings.AddText(this, "Axis use the same numbering system as the \"car controls\" menu. 1 - 10 not 0 - 9");
             Settings.AddText(this, "");
-            
+
             Settings.AddHeader(this, "Front hydraulic arm");
             Settings.AddSlider(this, _frontHydArmJoystick, 0, _joystickNames.Length - 1, _joystickNames);
             Settings.AddSlider(this, _frontHydArmAxis, 1, 10, _axisNames);
@@ -110,11 +108,11 @@ namespace KekmetBinds
         }
 
         /// <summary>
-        /// Called once, when mod is loading after game is fully loaded
+        /// Called once, when mod is loading after game is fully loaded.
         /// </summary>
         public override void OnLoad()
         {
-            _playerCurrentVehicle = PlayMakerGlobals.Instance.Variables.FindFsmString("PlayerCurrentVehicle");
+            _currentVic = PlayMakerGlobals.Instance.Variables.FindFsmString("PlayerCurrentVehicle");
 
             _leverHandlers = new List<LeverHandler>
             {
@@ -161,25 +159,23 @@ namespace KekmetBinds
         public override void Update()
         {
             //Reset if player leaves vehicle
-            if (_playerCurrentVehicle.Value.Length == 0)
+            if (_currentVic.Value.Length == 0)
             {
-                if (_playerLastVehicle == _playerCurrentVehicle.Value) return;
+                if (_lastVic == _currentVic.Value) return;
 
-                _playerLastVehicle = _playerCurrentVehicle.Value;
+                _lastVic = _currentVic.Value;
                 _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = false);
                 return;
             }
 
             // Check if the current vehicle has changed and tell the handlers
-            if (_playerLastVehicle != _playerCurrentVehicle.Value)
+            if (_lastVic != _currentVic.Value)
             {
-                _playerLastVehicle = _playerCurrentVehicle.Value;
-                _leverHandlers.ForEach(leverHandler =>
-                    leverHandler.IsInVehicle = _playerCurrentVehicle.Value == "Kekmet");
+                _lastVic = _currentVic.Value;
+                _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = _currentVic.Value == "Kekmet");
             }
 
-            _leverHandlers.ForEach(leverHandler =>
-                leverHandler.Handle());
+            _leverHandlers.ForEach(leverHandler => leverHandler.Handle());
         }
     }
 }
