@@ -22,7 +22,8 @@ namespace KekmetBinds
         //Used to tell if the player has entered / exited a vehicle.
         private FsmString _currentVic;
         private string _lastVic;
-
+        private Transform _playerTransform;
+        private Transform _kekmetTransform;
 
         //All LeverHandlers checked every frame.
         private readonly List<LeverHandler> _leverHandlers = new List<LeverHandler>();
@@ -48,6 +49,8 @@ namespace KekmetBinds
         private readonly Keybind _throttleKeybindAft = new Keybind("kekMetThrottleAft", "backward (raise)", KeyCode.Keypad6);
 
         //Settings
+        private readonly Settings _allowOutside = new Settings("kekMetAllowOutside", "(0 = person needs to be inside the vehicle)", 0);
+        
         private readonly Settings _frontHydArmJoystick = new Settings("kekMetFrontHydArmJoystick", "Joystick", 0);
         private readonly Settings _frontHydArmAxis = new Settings("kekMetFrontHydArmAxis", "Axis", 1);
         private readonly Settings _frontHydArmLowered = new Settings("kekMetFrontHydArmLowered", "Fully lowered %", -100);
@@ -62,6 +65,7 @@ namespace KekmetBinds
         private readonly Settings _throttleAxis = new Settings("kekMetThrottleAxis", "Axis", 1);
         private readonly Settings _throttleLowered = new Settings("kekMetThrottleLowered", "Fully lowered %", -100);
         private readonly Settings _throttleRaised = new Settings("kekMetThrottleRaised", "Fully raised %", 100);
+
         // @formatter:on
 
         /// <summary>
@@ -74,6 +78,10 @@ namespace KekmetBinds
             Array.Copy(Input.GetJoystickNames(), 0, _joystickNames, 1, Input.GetJoystickNames().Length);
 
             //Settings
+            Settings.AddText(this, "Distance before controlling");
+            Settings.AddSlider(this, _allowOutside, 0, 50);
+
+            Settings.AddHeader(this, "Joystick settings:");
             Settings.AddText(this, "Axis use the same numbering system as the \"car controls\" menu. 1 - 10 not 0 - 9");
             Settings.AddText(this, "");
 
@@ -113,9 +121,11 @@ namespace KekmetBinds
         public override void OnLoad()
         {
             _currentVic = PlayMakerGlobals.Instance.Variables.FindFsmString("PlayerCurrentVehicle");
+            _playerTransform = GameObject.Find("PLAYER").transform;
+            _kekmetTransform = GameObject.Find("KEKMET(350-400psi)").transform;
 
             _leverHandlers.Add(new LeverHandler(
-                GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydArm")
+                _kekmetTransform.Find("Dashboard/FrontHydArm")
                     .gameObject.GetComponent<PlayMakerFSM>(),
                 _frontHydArmKeybindFore,
                 _frontHydArmKeybindAft,
@@ -125,7 +135,7 @@ namespace KekmetBinds
                 _frontHydArmRaised
             ));
             _leverHandlers.Add(new LeverHandler(
-                GameObject.Find("KEKMET(350-400psi)").transform.Find("Dashboard/FrontHydLoader")
+                _kekmetTransform.Find("Dashboard/FrontHydLoader")
                     .gameObject.GetComponent<PlayMakerFSM>(),
                 _frontHydLoaderKeybindFore,
                 _frontHydLoaderKeybindAft,
@@ -135,7 +145,7 @@ namespace KekmetBinds
                 _frontHydLoaderRaised
             ));
             _leverHandlers.Add(new LeverHandler(
-                GameObject.Find("KEKMET(350-400psi)").transform.Find("LOD/Dashboard/Throttle")
+                _kekmetTransform.Find("LOD/Dashboard/Throttle")
                     .gameObject.GetComponent<PlayMakerFSM>(),
                 _throttleKeybindFore,
                 _throttleKeybindAft,
@@ -152,6 +162,16 @@ namespace KekmetBinds
         /// </summary>
         public override void Update()
         {
+            int allowOutsideDist = Convert.ToInt32(_allowOutside.Value);
+            // it's 0 if the feature is disabled
+            if (allowOutsideDist > 0)
+            {
+                float distanceToKekmet = Vector3.Distance(_playerTransform.position, _kekmetTransform.position);
+                _leverHandlers.ForEach(leverHandler => leverHandler.IsInVehicle = distanceToKekmet < allowOutsideDist);
+                _leverHandlers.ForEach(leverHandler => leverHandler.Handle());
+                return;
+            }
+
             //Reset if player leaves vehicle
             if (_currentVic.Value.Length == 0)
             {
