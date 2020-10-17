@@ -4,6 +4,7 @@ using System.Linq;
 using HutongGames.PlayMaker;
 using MSCLoader;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace KekmetBinds
 {
@@ -36,7 +37,6 @@ namespace KekmetBinds
 
         private readonly string[] _axisNames = {"", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
 
-
         // @formatter:off
         // Keybinds
         private readonly Keybind _frontHydArmKeybindFore = new Keybind("kekMetFrontHydArmFore", "forward (lower)", KeyCode.Keypad2);
@@ -49,19 +49,19 @@ namespace KekmetBinds
         private readonly Keybind _throttleKeybindAft = new Keybind("kekMetThrottleAft", "backward (raise)", KeyCode.Keypad6);
 
         //Settings
-        private readonly Settings _allowOutside = new Settings("kekMetAllowOutside", "(0 = person needs to be inside the vehicle)", 0);
+        private readonly Settings _allowOutside = new Settings("kekMetAllowOutside", "(0 = player needs to be in \"driving mode\")", 0);
         
-        private readonly Settings _frontHydArmJoystick = new Settings("kekMetFrontHydArmJoystick", "Joystick", 0);
+        private Settings _frontHydArmJoystick ;
         private readonly Settings _frontHydArmAxis = new Settings("kekMetFrontHydArmAxis", "Axis", 1);
         private readonly Settings _frontHydArmLowered = new Settings("kekMetFrontHydArmLowered", "Fully lowered %", -100);
         private readonly Settings _frontHydArmRaised = new Settings("kekMetFrontHydArmRaised", "Fully raised %", 100);
 
-        private readonly Settings _frontHydLoaderJoystick = new Settings("kekMetFrontHydLoaderJoystick", "Joystick", 0);
+        private Settings _frontHydLoaderJoystick;
         private readonly Settings _frontHydLoaderAxis = new Settings("kekMetFrontHydLoaderAxis", "Axis", 1);
         private readonly Settings _frontHydLoaderLowered = new Settings("kekMetFrontHydLoaderLowered", "Fully lowered %", -100);
         private readonly Settings _frontHydLoaderRaised = new Settings("kekMetFrontHydLoaderRaised", "Fully raised %", 100);
 
-        private readonly Settings _throttleJoystick = new Settings("kekMetThrottleJoystick", "Joystick", 0);
+        private Settings _throttleJoystick;
         private readonly Settings _throttleAxis = new Settings("kekMetThrottleAxis", "Axis", 1);
         private readonly Settings _throttleLowered = new Settings("kekMetThrottleLowered", "Fully lowered %", -100);
         private readonly Settings _throttleRaised = new Settings("kekMetThrottleRaised", "Fully raised %", 100);
@@ -78,27 +78,38 @@ namespace KekmetBinds
             Array.Copy(Input.GetJoystickNames(), 0, _joystickNames, 1, Input.GetJoystickNames().Length);
 
             //Settings
-            Settings.AddText(this, "Distance before controlling");
+            Settings.AddText(this, "Max distance from Kekmet");
             Settings.AddSlider(this, _allowOutside, 0, 50);
 
             Settings.AddHeader(this, "Joystick settings:");
             Settings.AddText(this, "Axis use the same numbering system as the \"car controls\" menu. 1 - 10 not 0 - 9");
-            Settings.AddText(this, "");
+            Settings.AddText(this,
+                "\"Fully lowered / raised %\" means at this joystick % the in-game lever will be at -100% / 100%.");
 
             Settings.AddHeader(this, "Front hydraulic arm");
-            Settings.AddSlider(this, _frontHydArmJoystick, 0, _joystickNames.Length - 1, _joystickNames);
+            _frontHydArmJoystick = new Settings("kekMetFrontHydArmJoystick", "Joystick: Error", 0,
+                () => UpdateJoystickName(_frontHydArmJoystick, 7));
+            _frontHydArmJoystick.Name = $"Joystick: {_joystickNames[Convert.ToInt32(_frontHydArmJoystick.Value)]}";
+            Settings.AddSlider(this, _frontHydArmJoystick, 0, _joystickNames.Length - 1);
             Settings.AddSlider(this, _frontHydArmAxis, 1, 10, _axisNames);
             Settings.AddSlider(this, _frontHydArmLowered, -100, 100);
             Settings.AddSlider(this, _frontHydArmRaised, -100, 100);
 
             Settings.AddHeader(this, "Front hydraulic fork");
-            Settings.AddSlider(this, _frontHydLoaderJoystick, 0, _joystickNames.Length - 1, _joystickNames);
+            _frontHydLoaderJoystick = new Settings("kekMetFrontHydLoaderJoystick", "Joystick: Error", 0,
+                () => UpdateJoystickName(_frontHydLoaderJoystick, 16));
+            _frontHydLoaderJoystick.Name =
+                $"Joystick: {_joystickNames[Convert.ToInt32(_frontHydLoaderJoystick.Value)]}";
+            Settings.AddSlider(this, _frontHydLoaderJoystick, 0, _joystickNames.Length - 1);
             Settings.AddSlider(this, _frontHydLoaderAxis, 1, 10, _axisNames);
             Settings.AddSlider(this, _frontHydLoaderLowered, -100, 100);
             Settings.AddSlider(this, _frontHydLoaderRaised, -100, 100);
 
             Settings.AddHeader(this, "Hand throttle");
-            Settings.AddSlider(this, _throttleJoystick, 0, _joystickNames.Length - 1, _joystickNames);
+            _throttleJoystick = new Settings("kekMetThrottleJoystick", "Joystick: Error", 0,
+                () => UpdateJoystickName(_throttleJoystick, 25));
+            _throttleJoystick.Name = $"Joystick: {_joystickNames[Convert.ToInt32(_throttleJoystick.Value)]}";
+            Settings.AddSlider(this, _throttleJoystick, 0, _joystickNames.Length - 1);
             Settings.AddSlider(this, _throttleAxis, 1, 10, _axisNames);
             Settings.AddSlider(this, _throttleLowered, -100, 100);
             Settings.AddSlider(this, _throttleRaised, -100, 100);
@@ -113,6 +124,27 @@ namespace KekmetBinds
             Keybind.AddHeader(this, "Hand throttle");
             Keybind.Add(this, _throttleKeybindFore);
             Keybind.Add(this, _throttleKeybindAft);
+        }
+
+        /// <summary>
+        /// Update the joystick name without redrawing the entire settings menu. This allows for dragging the sliders all the way.
+        /// This isn't nice. But works...
+        /// </summary>
+        /// <param name="setting">Setting of the joystick.</param>
+        /// <param name="labelIndex">Label index of the modSettingsList child to update.</param>
+        private void UpdateJoystickName(Settings setting, int labelIndex)
+        {
+            setting.Name = $"Joystick: {_joystickNames[Convert.ToInt32(setting.Value)]}";
+            SettingsView sv = UnityEngine.Object.FindObjectOfType<SettingsView>();
+            try
+            {
+                sv.modSettingsList.transform.GetChild(labelIndex).gameObject.GetComponent<Text>().text = setting.Name;
+            }
+            catch (Exception)
+            {
+                ModConsole.Error("Label index doesn't have a text component!");
+                throw;
+            }
         }
 
         /// <summary>
