@@ -79,6 +79,15 @@ namespace KekmetBinds
         /// <param name="fsmEvent">FSM event name like "INCREASE" or "DECREASE"</param>
         private void SetLeverHandler(string fsmEvent)
         {
+            if (_fsm.ActiveStateName == fsmEvent)
+            {
+                //Move the levers one meter up. That way the next lever can be interacted with.
+                //An alternative would be to move it to 0,0,0 but that might cause issues if you are too far away? idk.
+                Vector3 posOutOfTheWay = _camera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 1f) + Vector3.up);
+                _capsuleCollider.center = _capsuleCollider.transform.InverseTransformPoint(posOutOfTheWay);
+                return;
+            }
+
             // Position 1m away from the center of the camera
             Vector3 pos = _camera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 1f));
             _capsuleCollider.center = _capsuleCollider.transform.InverseTransformPoint(pos);
