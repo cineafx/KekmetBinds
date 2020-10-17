@@ -31,8 +31,8 @@ namespace KekmetBinds
 
         private readonly string[] _joystickNames =
         {
-            "None", "Not connected", "Not connected", "Not connected", "Not connected", "Not connected",
-            "Not connected", "Not connected", "Not connected"
+            "None", "Not connected", "Not connected", "Not connected", "Not connected",
+            "Not connected", "Not connected", "Not connected", "Not connected"
         };
 
         private readonly string[] _axisNames = {"", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
@@ -83,8 +83,7 @@ namespace KekmetBinds
 
             Settings.AddHeader(this, "Joystick settings:");
             Settings.AddText(this, "Axis use the same numbering system as the \"car controls\" menu. 1 - 10 not 0 - 9");
-            Settings.AddText(this,
-                "\"Fully lowered / raised %\" means at this joystick % the in-game lever will be at -100% / 100%.");
+            Settings.AddText(this, "\"Fully lowered / raised %\" means at this joystick % the in-game lever will be at -100% / 100%.");
 
             Settings.AddHeader(this, "Front hydraulic arm");
             _frontHydArmJoystick = new Settings("kekMetFrontHydArmJoystick", "Joystick: Error", 0,
@@ -98,8 +97,7 @@ namespace KekmetBinds
             Settings.AddHeader(this, "Front hydraulic fork");
             _frontHydLoaderJoystick = new Settings("kekMetFrontHydLoaderJoystick", "Joystick: Error", 0,
                 () => UpdateJoystickName(_frontHydLoaderJoystick, 16));
-            _frontHydLoaderJoystick.Name =
-                $"Joystick: {_joystickNames[Convert.ToInt32(_frontHydLoaderJoystick.Value)]}";
+            _frontHydLoaderJoystick.Name = $"Joystick: {_joystickNames[Convert.ToInt32(_frontHydLoaderJoystick.Value)]}";
             Settings.AddSlider(this, _frontHydLoaderJoystick, 0, _joystickNames.Length - 1);
             Settings.AddSlider(this, _frontHydLoaderAxis, 1, 10, _axisNames);
             Settings.AddSlider(this, _frontHydLoaderLowered, -100, 100);
@@ -157,8 +155,7 @@ namespace KekmetBinds
             _kekmetTransform = GameObject.Find("KEKMET(350-400psi)").transform;
 
             _leverHandlers.Add(new LeverHandler(
-                _kekmetTransform.Find("Dashboard/FrontHydArm")
-                    .gameObject.GetComponent<PlayMakerFSM>(),
+                _kekmetTransform.Find("Dashboard/FrontHydArm").gameObject.GetComponent<PlayMakerFSM>(),
                 _frontHydArmKeybindFore,
                 _frontHydArmKeybindAft,
                 _frontHydArmJoystick,
@@ -167,8 +164,7 @@ namespace KekmetBinds
                 _frontHydArmRaised
             ));
             _leverHandlers.Add(new LeverHandler(
-                _kekmetTransform.Find("Dashboard/FrontHydLoader")
-                    .gameObject.GetComponent<PlayMakerFSM>(),
+                _kekmetTransform.Find("Dashboard/FrontHydLoader").gameObject.GetComponent<PlayMakerFSM>(),
                 _frontHydLoaderKeybindFore,
                 _frontHydLoaderKeybindAft,
                 _frontHydLoaderJoystick,
@@ -177,8 +173,7 @@ namespace KekmetBinds
                 _frontHydLoaderRaised
             ));
             _leverHandlers.Add(new LeverHandler(
-                _kekmetTransform.Find("LOD/Dashboard/Throttle")
-                    .gameObject.GetComponent<PlayMakerFSM>(),
+                _kekmetTransform.Find("LOD/Dashboard/Throttle").gameObject.GetComponent<PlayMakerFSM>(),
                 _throttleKeybindFore,
                 _throttleKeybindAft,
                 _throttleJoystick,
