@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using HutongGames.PlayMaker;
 using MSCLoader;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace KekmetBinds
 {
@@ -89,12 +88,12 @@ namespace KekmetBinds
 
             modSettings.AddHeader("Front hydraulic fork");
             _frontHydLoaderJoystick = modSettings.AddSlider("kekMetFrontHydLoaderJoystick", "Joystick", 0, 0, _joystickNames.Length - 1);
-            _frontHydArmJoystick.TextValues = _joystickNames;
+            _frontHydLoaderJoystick.TextValues = _joystickNames;
             _frontHydLoaderAxis = modSettings.AddSlider("kekMetFrontHydLoaderAxis", "Axis", 1, 1, 10);
             _frontHydLoaderLowered = modSettings.AddSlider("kekMetFrontHydLoaderLowered", "Fully lowered %", -100, -100, 100);
             _frontHydLoaderRaised = modSettings.AddSlider("kekMetFrontHydLoaderRaised", "Fully raised %", 100, -100, 100);
             
-            modSettings.AddHeader("Front hydraulic fork");
+            modSettings.AddHeader("Hand throttle");
             _throttleJoystick = modSettings.AddSlider("kekMetFrontHydLoaderJoystick", "Joystick", 0, 0, _joystickNames.Length - 1);
             _throttleJoystick.TextValues = _joystickNames;
             _throttleAxis = modSettings.AddSlider("kekMetFrontHydLoaderAxis", "Axis", 1, 1, 10);

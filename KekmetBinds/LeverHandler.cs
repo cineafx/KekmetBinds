@@ -114,9 +114,9 @@ namespace KekmetBinds
             // Holding both buttons should do nothing
             if (KeybindBothHoldOrEitherUp(_fore, _aft))
                 ResetLeverHandler();
-            else if (_fore.GetKeyDown())
+            else if (_fore.GetKey())
                 SetLeverHandler("DECREASE");
-            else if (_aft.GetKeyDown())
+            else if (_aft.GetKey())
                 SetLeverHandler("INCREASE");
 
             //No joystick configured
@@ -152,7 +152,7 @@ namespace KekmetBinds
         /// <returns></returns>
         private static bool KeybindBothHoldOrEitherUp(SettingKeybind kb1, SettingKeybind kb2)
         {
-            return kb1.GetKeyDown() && kb2.GetKeyDown() || kb1.GetKeyUp() || kb2.GetKeyUp();
+            return kb1.GetKey() && kb2.GetKey() || kb1.GetKeyUp() || kb2.GetKeyUp();
         }
 
         /// <summary>
