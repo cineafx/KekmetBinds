@@ -12,9 +12,9 @@ namespace KekmetBinds
         public override string ID => "KekmetBinds";
         public override string Name => "Kekmet Binds";
         public override string Author => "icdb / cineafx";
-        public override string Version => "1.1";
-
-        public override string Description => "";
+        public override string Version => "2.0";
+        public override string Description => "Adds extra binds to the Kekment Tractor.";
+        public override byte[] Icon => Properties.Resources.icon;
         
 
         //Used to tell if the player has entered / exited a vehicle.
