@@ -32,9 +32,6 @@ namespace KekmetBinds
             "Not connected", "Not connected", "Not connected", "Not connected"
         };
 
-        private readonly string[] _axisNames = {"", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
-
-        // @formatter:off
         // Keybinds
         private SettingKeybind _frontHydArmKeybindFore;
         private SettingKeybind _frontHydArmKeybindAft;
@@ -63,7 +60,6 @@ namespace KekmetBinds
         private SettingSlider _throttleLowered;
         private SettingSlider _throttleRaised;
 
-        // @formatter:on
 
         /// <summary>
         /// All settings should be created here. 
@@ -76,37 +72,39 @@ namespace KekmetBinds
 
             //Settings
             modSettings.AddText("Max distance from Kekmet");
-            _allowOutside = modSettings.AddSlider("kekMetAllowOutside", "(0 = player needs to be in \"driving mode\")", 0, 0, 50, 2);
+            _allowOutside = modSettings.AddSlider("kekMetAllowOutside", "(0 = player needs to be in \"driving mode\")", 0, 0, 50, 1);
+
+            modSettings.AddSpacer(20);
 
             modSettings.AddHeader("Joystick settings:");
             modSettings.AddText("Axis use the same numbering system as the \"car controls\" menu. 1 - 10 not 0 - 9");
             modSettings.AddText("\"Fully lowered / raised %\" means at this joystick % the in-game lever will be at -100% / 100%.");
 
             modSettings.AddHeader("Front hydraulic arm");
-            _frontHydArmJoystick = modSettings.AddSlider("kekMetFrontHydArmJoystick", "Joystick: Error", 0, 0, _joystickNames.Length - 1, () => UpdateJoystickName(_frontHydArmJoystick));
-            UpdateJoystickName(_frontHydArmJoystick);
-            _frontHydArmAxis = modSettings.AddSlider("kekMetFrontHydArmAxis", "Axis", 1, 1, 10, () => UpdateAxisName(_frontHydArmAxis));
-            UpdateAxisName(_frontHydArmAxis);
+            _frontHydArmJoystick = modSettings.AddSlider("kekMetFrontHydArmJoystick", "Joystick", 0, 0, _joystickNames.Length - 1);
+            _frontHydArmJoystick.TextValues = _joystickNames;
+            _frontHydArmAxis = modSettings.AddSlider("kekMetFrontHydArmAxis", "Axis", 1, 1, 10);
             _frontHydArmLowered = modSettings.AddSlider("kekMetFrontHydArmLowered", "Fully lowered %", -100, -100, 100);
             _frontHydArmRaised = modSettings.AddSlider("kekMetFrontHydArmRaised", "Fully raised %", 100, -100, 100);
 
             modSettings.AddHeader("Front hydraulic fork");
-            _frontHydLoaderJoystick = modSettings.AddSlider("kekMetFrontHydLoaderJoystick", "Joystick: Error", 0, 0, _joystickNames.Length - 1, () => UpdateJoystickName(_frontHydLoaderJoystick));
-            UpdateJoystickName(_frontHydLoaderJoystick);
-            _frontHydLoaderAxis = modSettings.AddSlider("kekMetFrontHydLoaderAxis", "Axis", 1, 1, 10, () => UpdateAxisName(_frontHydLoaderAxis));
-            UpdateAxisName(_frontHydLoaderAxis);
+            _frontHydLoaderJoystick = modSettings.AddSlider("kekMetFrontHydLoaderJoystick", "Joystick", 0, 0, _joystickNames.Length - 1);
+            _frontHydArmJoystick.TextValues = _joystickNames;
+            _frontHydLoaderAxis = modSettings.AddSlider("kekMetFrontHydLoaderAxis", "Axis", 1, 1, 10);
             _frontHydLoaderLowered = modSettings.AddSlider("kekMetFrontHydLoaderLowered", "Fully lowered %", -100, -100, 100);
             _frontHydLoaderRaised = modSettings.AddSlider("kekMetFrontHydLoaderRaised", "Fully raised %", 100, -100, 100);
             
             modSettings.AddHeader("Front hydraulic fork");
-            _throttleJoystick = modSettings.AddSlider("kekMetFrontHydLoaderJoystick", "Joystick: Error", 0, 0, _joystickNames.Length - 1, () => UpdateJoystickName(_throttleJoystick));
-            UpdateJoystickName(_throttleJoystick);
-            _throttleAxis = modSettings.AddSlider("kekMetFrontHydLoaderAxis", "Axis", 1, 1, 10, () => UpdateAxisName(_throttleAxis));
-            UpdateAxisName(_throttleAxis);
+            _throttleJoystick = modSettings.AddSlider("kekMetFrontHydLoaderJoystick", "Joystick", 0, 0, _joystickNames.Length - 1);
+            _throttleJoystick.TextValues = _joystickNames;
+            _throttleAxis = modSettings.AddSlider("kekMetFrontHydLoaderAxis", "Axis", 1, 1, 10);
             _throttleLowered = modSettings.AddSlider("kekMetFrontHydLoaderLowered", "Fully lowered %", -100, -100, 100);
             _throttleRaised = modSettings.AddSlider("kekMetFrontHydLoaderRaised", "Fully raised %", 100, -100, 100);
 
+            modSettings.AddSpacer(20);
+            
             //Keybinds
+            modSettings.AddHeader("Keybinds:");
             modSettings.AddHeader("Front hydraulic arm");
             _frontHydArmKeybindFore = modSettings.AddKeybind("kekMetFrontHydArmFore", "forward (lower)", KeyCode.Keypad2);
             _frontHydArmKeybindAft = modSettings.AddKeybind("kekMetFrontHydArmAft", "backward (raise)", KeyCode.Keypad5);
@@ -116,26 +114,6 @@ namespace KekmetBinds
             modSettings.AddHeader("Hand throttle");
             _throttleKeybindFore = modSettings.AddKeybind("kekMetThrottleFore", "forward (lower)", KeyCode.Keypad3);
             _throttleKeybindAft = modSettings.AddKeybind("kekMetThrottleAft", "backward (raise)", KeyCode.Keypad6);
-        }
-
-        /// <summary>
-        /// Update the joystick name without redrawing the entire settings menu. This allows for dragging the sliders all the way.
-        /// This isn't nice. But works...
-        /// </summary>
-        /// <param name="setting">Setting of the joystick.</param>
-        private void UpdateJoystickName(SettingSlider setting)
-        {
-            setting.Name = $"Joystick: {_joystickNames[Convert.ToInt32(setting.Value)]}";
-        }
-        
-        /// <summary>
-        /// Update the Axis name without redrawing the entire settings menu. This allows for dragging the sliders all the way.
-        /// This isn't nice. But works...
-        /// </summary>
-        /// <param name="setting">Setting of the Axis.</param>
-        private void UpdateAxisName(SettingSlider setting)
-        {
-            setting.Name = $"Axis: {_axisNames[Convert.ToInt32(setting.Value)]}";
         }
 
         /// <summary>
