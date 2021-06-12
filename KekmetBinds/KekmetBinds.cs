@@ -3,21 +3,18 @@ using System.Collections.Generic;
 using HutongGames.PlayMaker;
 using MSCLoader;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace KekmetBinds
 {
     public class KekmetBinds : Mod
     {
-        public override string ID => "KekmetBinds"; //Your mod ID (unique)
-        public override string Name => "Kekmet Binds"; //You mod name
-        public override string Author => "icdb"; //Your Username
-        public override string Version => "1.0"; //Version
-
-        // Set this to true if you will be load custom assets from Assets folder.
-        // This will create subfolder in Assets folder for your mod.
-        public override bool UseAssetsFolder => false;
-
+        public override string ID => "KekmetBinds";
+        public override string Name => "Kekmet Binds";
+        public override string Author => "icdb / cineafx";
+        public override string Version => "2.0";
+        public override string Description => "Adds extra binds to the Kekment Tractor.";
+        public override byte[] Icon => Properties.Resources.icon;
+        
 
         //Used to tell if the player has entered / exited a vehicle.
         private FsmString _currentVic;
@@ -34,38 +31,34 @@ namespace KekmetBinds
             "Not connected", "Not connected", "Not connected", "Not connected"
         };
 
-        private readonly string[] _axisNames = {"", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
-
-        // @formatter:off
         // Keybinds
-        private readonly Keybind _frontHydArmKeybindFore = new Keybind("kekMetFrontHydArmFore", "forward (lower)", KeyCode.Keypad2);
-        private readonly Keybind _frontHydArmKeybindAft = new Keybind("kekMetFrontHydArmAft", "backward (raise)", KeyCode.Keypad5);
+        private SettingKeybind _frontHydArmKeybindFore;
+        private SettingKeybind _frontHydArmKeybindAft;
 
-        private readonly Keybind _frontHydLoaderKeybindFore = new Keybind("kekMetFrontHydLoaderFore", "forward (lower)", KeyCode.Keypad1);
-        private readonly Keybind _frontHydLoaderKeybindAft = new Keybind("kekMetFrontHydLoaderAft", "backward (raise)", KeyCode.Keypad4);
+        private SettingKeybind _frontHydLoaderKeybindFore;
+        private SettingKeybind _frontHydLoaderKeybindAft; 
 
-        private readonly Keybind _throttleKeybindFore = new Keybind("kekMetThrottleFore", "forward (lower)", KeyCode.Keypad3);
-        private readonly Keybind _throttleKeybindAft = new Keybind("kekMetThrottleAft", "backward (raise)", KeyCode.Keypad6);
+        private SettingKeybind _throttleKeybindFore;   
+        private SettingKeybind _throttleKeybindAft;        
 
         //Settings
-        private readonly Settings _allowOutside = new Settings("kekMetAllowOutside", "(0 = player needs to be in \"driving mode\")", 0);
+        private SettingSlider _allowOutside;
         
-        private Settings _frontHydArmJoystick ;
-        private readonly Settings _frontHydArmAxis = new Settings("kekMetFrontHydArmAxis", "Axis", 1);
-        private readonly Settings _frontHydArmLowered = new Settings("kekMetFrontHydArmLowered", "Fully lowered %", -100);
-        private readonly Settings _frontHydArmRaised = new Settings("kekMetFrontHydArmRaised", "Fully raised %", 100);
+        private SettingSlider _frontHydArmJoystick;
+        private SettingSlider _frontHydArmAxis;
+        private SettingSlider _frontHydArmLowered;
+        private SettingSlider _frontHydArmRaised;
 
-        private Settings _frontHydLoaderJoystick;
-        private readonly Settings _frontHydLoaderAxis = new Settings("kekMetFrontHydLoaderAxis", "Axis", 1);
-        private readonly Settings _frontHydLoaderLowered = new Settings("kekMetFrontHydLoaderLowered", "Fully lowered %", -100);
-        private readonly Settings _frontHydLoaderRaised = new Settings("kekMetFrontHydLoaderRaised", "Fully raised %", 100);
+        private SettingSlider _frontHydLoaderJoystick;
+        private SettingSlider _frontHydLoaderAxis;
+        private SettingSlider _frontHydLoaderLowered;
+        private SettingSlider _frontHydLoaderRaised;
 
-        private Settings _throttleJoystick;
-        private readonly Settings _throttleAxis = new Settings("kekMetThrottleAxis", "Axis", 1);
-        private readonly Settings _throttleLowered = new Settings("kekMetThrottleLowered", "Fully lowered %", -100);
-        private readonly Settings _throttleRaised = new Settings("kekMetThrottleRaised", "Fully raised %", 100);
+        private SettingSlider _throttleJoystick;
+        private SettingSlider _throttleAxis;
+        private SettingSlider _throttleLowered;
+        private SettingSlider _throttleRaised;
 
-        // @formatter:on
 
         /// <summary>
         /// All settings should be created here. 
@@ -77,71 +70,49 @@ namespace KekmetBinds
             Array.Copy(Input.GetJoystickNames(), 0, _joystickNames, 1, Input.GetJoystickNames().Length);
 
             //Settings
-            Settings.AddText(this, "Max distance from Kekmet");
-            Settings.AddSlider(this, _allowOutside, 0, 50);
+            modSettings.AddText("Max distance from Kekmet");
+            _allowOutside = modSettings.AddSlider("kekMetAllowOutside", "(0 = player needs to be in \"driving mode\")", 0, 0, 50, 1);
 
-            Settings.AddHeader(this, "Joystick settings:");
-            Settings.AddText(this, "Axis use the same numbering system as the \"car controls\" menu. 1 - 10 not 0 - 9");
-            Settings.AddText(this, "\"Fully lowered / raised %\" means at this joystick % the in-game lever will be at -100% / 100%.");
+            modSettings.AddSpacer(20);
 
-            Settings.AddHeader(this, "Front hydraulic arm");
-            _frontHydArmJoystick = new Settings("kekMetFrontHydArmJoystick", "Joystick: Error", 0,
-                () => UpdateJoystickName(_frontHydArmJoystick, 7));
-            _frontHydArmJoystick.Name = $"Joystick: {_joystickNames[Convert.ToInt32(_frontHydArmJoystick.Value)]}";
-            Settings.AddSlider(this, _frontHydArmJoystick, 0, _joystickNames.Length - 1);
-            Settings.AddSlider(this, _frontHydArmAxis, 1, 10, _axisNames);
-            Settings.AddSlider(this, _frontHydArmLowered, -100, 100);
-            Settings.AddSlider(this, _frontHydArmRaised, -100, 100);
+            modSettings.AddHeader("Joystick settings:");
+            modSettings.AddText("Axis use the same numbering system as the \"car controls\" menu. 1 - 10 not 0 - 9");
+            modSettings.AddText("\"Fully lowered / raised %\" means at this joystick % the in-game lever will be at -100% / 100%.");
 
-            Settings.AddHeader(this, "Front hydraulic fork");
-            _frontHydLoaderJoystick = new Settings("kekMetFrontHydLoaderJoystick", "Joystick: Error", 0,
-                () => UpdateJoystickName(_frontHydLoaderJoystick, 16));
-            _frontHydLoaderJoystick.Name = $"Joystick: {_joystickNames[Convert.ToInt32(_frontHydLoaderJoystick.Value)]}";
-            Settings.AddSlider(this, _frontHydLoaderJoystick, 0, _joystickNames.Length - 1);
-            Settings.AddSlider(this, _frontHydLoaderAxis, 1, 10, _axisNames);
-            Settings.AddSlider(this, _frontHydLoaderLowered, -100, 100);
-            Settings.AddSlider(this, _frontHydLoaderRaised, -100, 100);
+            modSettings.AddHeader("Front hydraulic arm");
+            _frontHydArmJoystick = modSettings.AddSlider("kekMetFrontHydArmJoystick", "Joystick", 0, 0, _joystickNames.Length - 1);
+            _frontHydArmJoystick.TextValues = _joystickNames;
+            _frontHydArmAxis = modSettings.AddSlider("kekMetFrontHydArmAxis", "Axis", 1, 1, 10);
+            _frontHydArmLowered = modSettings.AddSlider("kekMetFrontHydArmLowered", "Fully lowered %", -100, -100, 100);
+            _frontHydArmRaised = modSettings.AddSlider("kekMetFrontHydArmRaised", "Fully raised %", 100, -100, 100);
 
-            Settings.AddHeader(this, "Hand throttle");
-            _throttleJoystick = new Settings("kekMetThrottleJoystick", "Joystick: Error", 0,
-                () => UpdateJoystickName(_throttleJoystick, 25));
-            _throttleJoystick.Name = $"Joystick: {_joystickNames[Convert.ToInt32(_throttleJoystick.Value)]}";
-            Settings.AddSlider(this, _throttleJoystick, 0, _joystickNames.Length - 1);
-            Settings.AddSlider(this, _throttleAxis, 1, 10, _axisNames);
-            Settings.AddSlider(this, _throttleLowered, -100, 100);
-            Settings.AddSlider(this, _throttleRaised, -100, 100);
+            modSettings.AddHeader("Front hydraulic fork");
+            _frontHydLoaderJoystick = modSettings.AddSlider("kekMetFrontHydLoaderJoystick", "Joystick", 0, 0, _joystickNames.Length - 1);
+            _frontHydLoaderJoystick.TextValues = _joystickNames;
+            _frontHydLoaderAxis = modSettings.AddSlider("kekMetFrontHydLoaderAxis", "Axis", 1, 1, 10);
+            _frontHydLoaderLowered = modSettings.AddSlider("kekMetFrontHydLoaderLowered", "Fully lowered %", -100, -100, 100);
+            _frontHydLoaderRaised = modSettings.AddSlider("kekMetFrontHydLoaderRaised", "Fully raised %", 100, -100, 100);
+            
+            modSettings.AddHeader("Hand throttle");
+            _throttleJoystick = modSettings.AddSlider("kekMetFrontHydLoaderJoystick", "Joystick", 0, 0, _joystickNames.Length - 1);
+            _throttleJoystick.TextValues = _joystickNames;
+            _throttleAxis = modSettings.AddSlider("kekMetFrontHydLoaderAxis", "Axis", 1, 1, 10);
+            _throttleLowered = modSettings.AddSlider("kekMetFrontHydLoaderLowered", "Fully lowered %", -100, -100, 100);
+            _throttleRaised = modSettings.AddSlider("kekMetFrontHydLoaderRaised", "Fully raised %", 100, -100, 100);
 
+            modSettings.AddSpacer(20);
+            
             //Keybinds
-            Keybind.AddHeader(this, "Front hydraulics arm");
-            Keybind.Add(this, _frontHydArmKeybindFore);
-            Keybind.Add(this, _frontHydArmKeybindAft);
-            Keybind.AddHeader(this, "Front hydraulics fork");
-            Keybind.Add(this, _frontHydLoaderKeybindFore);
-            Keybind.Add(this, _frontHydLoaderKeybindAft);
-            Keybind.AddHeader(this, "Hand throttle");
-            Keybind.Add(this, _throttleKeybindFore);
-            Keybind.Add(this, _throttleKeybindAft);
-        }
-
-        /// <summary>
-        /// Update the joystick name without redrawing the entire settings menu. This allows for dragging the sliders all the way.
-        /// This isn't nice. But works...
-        /// </summary>
-        /// <param name="setting">Setting of the joystick.</param>
-        /// <param name="labelIndex">Label index of the modSettingsList child to update.</param>
-        private void UpdateJoystickName(Settings setting, int labelIndex)
-        {
-            setting.Name = $"Joystick: {_joystickNames[Convert.ToInt32(setting.Value)]}";
-            SettingsView sv = UnityEngine.Object.FindObjectOfType<SettingsView>();
-            try
-            {
-                sv.modSettingsList.transform.GetChild(labelIndex).gameObject.GetComponent<Text>().text = setting.Name;
-            }
-            catch (Exception)
-            {
-                ModConsole.Error("Label index doesn't have a text component!");
-                throw;
-            }
+            modSettings.AddHeader("Keybinds:");
+            modSettings.AddHeader("Front hydraulic arm");
+            _frontHydArmKeybindFore = modSettings.AddKeybind("kekMetFrontHydArmFore", "forward (lower)", KeyCode.Keypad2);
+            _frontHydArmKeybindAft = modSettings.AddKeybind("kekMetFrontHydArmAft", "backward (raise)", KeyCode.Keypad5);
+            modSettings.AddHeader("Front hydraulic fork");
+            _frontHydLoaderKeybindFore = modSettings.AddKeybind("kekMetFrontHydLoaderFore", "forward (lower)", KeyCode.Keypad1);
+            _frontHydLoaderKeybindAft = modSettings.AddKeybind("kekMetFrontHydLoaderAft", "backward (raise)", KeyCode.Keypad4);
+            modSettings.AddHeader("Hand throttle");
+            _throttleKeybindFore = modSettings.AddKeybind("kekMetThrottleFore", "forward (lower)", KeyCode.Keypad3);
+            _throttleKeybindAft = modSettings.AddKeybind("kekMetThrottleAft", "backward (raise)", KeyCode.Keypad6);
         }
 
         /// <summary>

@@ -35,9 +35,15 @@
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\My Summer Car\mysummercar_Data\Managed\MSCLoader.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MSCLoader, Version=1.1.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>D:\SteamLibrary\steamapps\common\My Summer Car\mysummercar_Data\Managed\MSCLoader.dll</HintPath>
+    </Reference>
     <Reference Include="PlayMaker">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\My Summer Car\mysummercar_Data\Managed\PlayMaker.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="PlayMaker, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>D:\SteamLibrary\steamapps\common\My Summer Car\mysummercar_Data\Managed\PlayMaker.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -49,24 +55,40 @@
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\My Summer Car\mysummercar_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>D:\SteamLibrary\steamapps\common\My Summer Car\mysummercar_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\My Summer Car\mysummercar_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>D:\SteamLibrary\steamapps\common\My Summer Car\mysummercar_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="KekmetBinds.cs" />
     <Compile Include="LeverHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if "$(ConfigurationName)" == "Debug" (
-copy $(TargetPath) "C:\Users\Karl\AppData\LocalLow\Amistech\My Summer Car\Mods" /y
-copy "$(TargetDir)$(TargetName).pdb" "C:\Users\Karl\AppData\LocalLow\Amistech\My Summer Car\Mods\mods"
-call "C:\Users\Karl\AppData\LocalLow\Amistech\My Summer Car\Mods\debug.bat"
+copy $(TargetPath) "D:\SteamLibrary\steamapps\common\My Summer Car\Mods" /y
+copy "$(TargetDir)$(TargetName).pdb" "D:\SteamLibrary\steamapps\common\My Summer Car\Mods\mods"
+call "D:\SteamLibrary\steamapps\common\My Summer Car\Mods\debug.bat"
 ) ELSE (
-copy $(TargetPath) "C:\Users\Karl\AppData\LocalLow\Amistech\My Summer Car\Mods" /y
+copy $(TargetPath) "D:\SteamLibrary\steamapps\common\My Summer Car\Mods" /y
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>

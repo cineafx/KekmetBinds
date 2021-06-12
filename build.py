@@ -41,13 +41,16 @@ shutil.rmtree(BASE_DIR + "\\build", True)
 os.mkdir("build")
 shutil.copyfile("KekmetBinds\\bin\\Release\\KekmetBinds.dll",
                 "build\\KekmetBinds.dll")
-shutil.copyfile("PleaseReadMe.txt", "build\\PleaseReadMe.txt")
+#shutil.copyfile("PleaseReadMe.txt", "build\\PleaseReadMe.txt")
 os.chdir("build")
 
 FILES = []
 FILES.extend(["KekmetBinds.dll"])
-FILES.extend(["PleaseReadme.txt"])
+#FILES.extend(["PleaseReadme.txt"])
 make_zip(FILES, "KekmetBinds.zip")
+
+os.chdir(BASE_DIR)
+shutil.rmtree("build")
 
 print("Done!\nQuitting...")
 quit()
