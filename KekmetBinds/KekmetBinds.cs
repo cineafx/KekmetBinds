@@ -9,15 +9,13 @@ namespace KekmetBinds
 {
     public class KekmetBinds : Mod
     {
-        public override string ID => "KekmetBinds"; //Your mod ID (unique)
-        public override string Name => "Kekmet Binds"; //You mod name
-        public override string Author => "icdb"; //Your Username
-        public override string Version => "1.0"; //Version
+        public override string ID => "KekmetBinds";
+        public override string Name => "Kekmet Binds";
+        public override string Author => "icdb / cineafx";
+        public override string Version => "1.1";
 
-        // Set this to true if you will be load custom assets from Assets folder.
-        // This will create subfolder in Assets folder for your mod.
-        public override bool UseAssetsFolder => false;
-
+        public override string Description => "";
+        
 
         //Used to tell if the player has entered / exited a vehicle.
         private FsmString _currentVic;
