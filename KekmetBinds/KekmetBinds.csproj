@@ -49,7 +49,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="KekmetBinds.cs" />
-    <Compile Include="LeverHandler.cs" />
+    <Compile Include="LeverHandling\ILeverHandler.cs" />
+    <Compile Include="LeverHandling\InputHelper.cs" />
+    <Compile Include="LeverHandling\LeverHandler.cs" />
+    <Compile Include="LeverHandling\LeverHandlerNewHydraulics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

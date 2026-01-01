@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using HutongGames.PlayMaker;
+using KekmetBinds.LeverHandling;
 using MSCLoader;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ namespace KekmetBinds
         private Transform _kekmetTransform;
 
         //All LeverHandlers checked every frame.
-        private readonly List<LeverHandler> _leverHandlers = new List<LeverHandler>();
+        private readonly List<ILeverHandler> _leverHandlers = new List<ILeverHandler>();
 
         private readonly string[] _joystickNames =
         {
@@ -71,7 +72,7 @@ namespace KekmetBinds
         private SettingsSliderInt _throttleRaised;
 
 
-        public void ModSettings()
+        private void ModSettings()
         {
             //Prep
             Array.Copy(Input.GetJoystickNames(), 0, _joystickNames, 1, Input.GetJoystickNames().Length);
@@ -123,7 +124,7 @@ namespace KekmetBinds
             _playerTransform = GameObject.Find("PLAYER").transform;
             _kekmetTransform = GameObject.Find("KEKMET(350-400psi)").transform;
 
-            _leverHandlers.Add(new LeverHandler(
+            _leverHandlers.Add(new LeverHandlerNewHydraulics(
                 _kekmetTransform.Find("Dashboard/NewHydraulics/FrontHydArm").gameObject.GetComponent<PlayMakerFSM>(),
                 _frontHydArmKeybindFore,
                 _frontHydArmKeybindAft,
@@ -132,7 +133,7 @@ namespace KekmetBinds
                 _frontHydArmLowered,
                 _frontHydArmRaised
             ));
-            _leverHandlers.Add(new LeverHandler(
+            _leverHandlers.Add(new LeverHandlerNewHydraulics(
                 _kekmetTransform.Find("Dashboard/NewHydraulics/FrontHydLoader").gameObject.GetComponent<PlayMakerFSM>(),
                 _frontHydLoaderKeybindFore,
                 _frontHydLoaderKeybindAft,
